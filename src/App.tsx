@@ -1,27 +1,52 @@
+import { useState } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { BrowserRouter, Routes, Route } from "react-router-dom";
-import Index from "./pages/Index";
-import NotFound from "./pages/NotFound";
+import Dashboard from "@/components/Dashboard";
+import BottomNavigation from "@/components/BottomNavigation";
+import WaterTracker from "@/components/WaterTracker";
+import MealTracker from "@/components/MealTracker";
+import WorkoutTracker from "@/components/WorkoutTracker";
+import CycleTracker from "@/components/CycleTracker";
+import Journal from "@/components/Journal";
 
 const queryClient = new QueryClient();
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
-);
+const App = () => {
+  const [activeTab, setActiveTab] = useState("dashboard");
+
+  const renderActiveTab = () => {
+    switch (activeTab) {
+      case "dashboard":
+        return <Dashboard />;
+      case "water":
+        return <WaterTracker />;
+      case "meals":
+        return <MealTracker />;
+      case "workout":
+        return <WorkoutTracker />;
+      case "cycle":
+        return <CycleTracker />;
+      case "journal":
+        return <Journal />;
+      default:
+        return <Dashboard />;
+    }
+  };
+
+  return (
+    <QueryClientProvider client={queryClient}>
+      <TooltipProvider>
+        <div className="min-h-screen bg-background">
+          {renderActiveTab()}
+          <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+        </div>
+        <Toaster />
+        <Sonner />
+      </TooltipProvider>
+    </QueryClientProvider>
+  );
+};
 
 export default App;
