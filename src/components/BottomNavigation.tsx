@@ -1,4 +1,4 @@
-import { Home, Droplets, Utensils, Dumbbell, Calendar, BookHeart } from "lucide-react";
+import { Home, Droplets, Utensils, Dumbbell, Calendar, BookHeart, LogOutIcon } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface NavigationItem {
@@ -15,10 +15,10 @@ interface BottomNavigationProps {
 const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => {
   const navigationItems: NavigationItem[] = [
     { icon: Home, label: "Home", id: "dashboard" },
-    { icon: Droplets, label: "Water", id: "water" },
     { icon: Utensils, label: "Meals", id: "meals" },
     { icon: Dumbbell, label: "Workout", id: "workout" },
     { icon: Calendar, label: "Cycle", id: "cycle" },
+    { icon: LogOutIcon, label: "Logout", id: "logout" },
   ];
 
   return (

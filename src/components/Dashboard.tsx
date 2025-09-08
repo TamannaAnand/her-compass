@@ -60,6 +60,10 @@ const Dashboard = ({ setActiveTab }) => {
     setActiveTab("journal");
   }
 
+  const handleAddWater = () => {
+    setActiveTab("water");
+  }
+
   return (
     <div className="min-h-screen bg-gradient-soft p-4 pb-20">
       <div className="max-w-md mx-auto">
@@ -71,9 +75,9 @@ const Dashboard = ({ setActiveTab }) => {
 
         {/* Quick Add Actions */}
         <div className="grid grid-cols-2 gap-3 mb-8">
-          <Button className="h-16 bg-primary hover:bg-primary/90 shadow-soft">
+          <Button className="h-16 bg-primary hover:bg-primary/90 shadow-soft" onClick={handleAddWater}>
             <div className="flex flex-col items-center gap-1">
-              <Plus className="h-5 w-5" />
+              <Droplets className="h-5 w-5" />
               <span className="text-sm">Add Water</span>
             </div>
           </Button>

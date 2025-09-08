@@ -10,6 +10,8 @@ import MealTracker from "@/components/MealTracker";
 import WorkoutTracker from "@/components/WorkoutTracker";
 import CycleTracker from "@/components/CycleTracker";
 import Journal from "@/components/Journal";
+import Logout from "@/components/auth/Logout";
+import Login from "@/components/auth/Login";
 
 
 const queryClient = new QueryClient();
@@ -31,6 +33,10 @@ const App = () => {
         return <CycleTracker />;
       case "journal":
         return <Journal />;
+      case "logout":
+        return <Logout setActiveTab={setActiveTab} />;
+      case "login":
+        return <Login setActiveTab={setActiveTab} />;
       default:
         return <Dashboard setActiveTab={setActiveTab} />;
     }
