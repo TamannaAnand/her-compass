@@ -12,14 +12,36 @@ import CycleTracker from "@/components/CycleTracker";
 import Journal from "@/components/Journal";
 import Logout from "@/components/auth/Logout";
 import Login from "@/components/auth/Login";
+import supabase from "@/lib/supabaseClient";
+import { useEffect } from "react";
 
 
 const queryClient = new QueryClient();
 
 const App = () => {
   const [activeTab, setActiveTab] = useState("dashboard");
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
+
+    useEffect(() => {
+    // Check initial auth state
+    supabase.auth.getUser().then(({ data }) => {
+      setIsLoggedIn(!!data?.user);
+    });
+
+    // Listen for auth changes
+    const { data: listener } = supabase.auth.onAuthStateChange((_event, session) => {
+      setIsLoggedIn(!!session?.user);
+    });
+
+    return () => {
+      listener?.subscription.unsubscribe();
+    };
+  }, []);
 
   const renderActiveTab = () => {
+        if (!isLoggedIn) {
+      return <Login setActiveTab={setActiveTab} />;
+    }
     switch (activeTab) {
       case "dashboard":
         return <Dashboard setActiveTab={setActiveTab} />;
@@ -35,10 +57,6 @@ const App = () => {
         return <Journal />;
       case "logout":
         return <Logout setActiveTab={setActiveTab} />;
-      case "login":
-        return <Login setActiveTab={setActiveTab} />;
-      default:
-        return <Dashboard setActiveTab={setActiveTab} />;
     }
   };
 
@@ -47,7 +65,9 @@ const App = () => {
       <TooltipProvider>
         <div className="min-h-screen bg-background">
           {renderActiveTab()}
-          <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          {isLoggedIn && (
+            <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+          )}
         </div>
         <Toaster />
         <Sonner />

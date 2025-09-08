@@ -3,6 +3,8 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Utensils, Plus, Coffee, Sun, Moon, Apple } from "lucide-react";
+import { addMealToDb, deleteMealFromDb, updateMealInDb, fetchMealsFromDb } from "@/lib/mealAPI";
+import { useEffect } from "react";
 
 interface Meal {
   id: string;
@@ -11,9 +13,8 @@ interface Meal {
   time: string;
 }
 
-const MealTracker = () => {
+const MealTracker = ({userId}) => {
   const [meals, setMeals] = useState<Meal[]>([]);
-
   const [newMeal, setNewMeal] = useState("");
   const [selectedType, setSelectedType] = useState<Meal["type"]>("breakfast");
 
@@ -24,17 +25,28 @@ const MealTracker = () => {
     { type: "snack" as const, icon: Apple, label: "Snack" },
   ];
 
-  const addMeal = () => {
+// Fetch meals from DB on mount
+  useEffect(() => {
+    const fetchMeals = async () => {
+      const data = await fetchMealsFromDb(userId);
+      if (data) setMeals(data);
+    };
+    fetchMeals();
+  }, [userId]);
+
+  const handleAddMeal = async () => {
     if (newMeal.trim()) {
       const now = new Date();
-      const meal: Meal = {
-        id: Date.now().toString(),
+      const meal = {
         name: newMeal.trim(),
         type: selectedType,
-        time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        time: now.toISOString(),
+        user_id: userId,
       };
-      
-      setMeals([meal, ...meals]);
+      await addMealToDb(meal);
+      // Refetch meals after adding
+      const data = await fetchMealsFromDb(userId);
+      if (data) setMeals(data);
       setNewMeal("");
     }
   };
@@ -85,7 +97,7 @@ const MealTracker = () => {
                 onChange={(e) => setNewMeal(e.target.value)}
                 className="h-12"
               />
-              <Button onClick={addMeal} className="w-full h-12">
+              <Button onClick={handleAddMeal} className="w-full h-12">
                 <Plus className="h-4 w-4 mr-2" />
                 Add Meal
               </Button>
