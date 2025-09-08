@@ -19,12 +19,11 @@ const BottomNavigation = ({ activeTab, onTabChange }: BottomNavigationProps) => 
     { icon: Utensils, label: "Meals", id: "meals" },
     { icon: Dumbbell, label: "Workout", id: "workout" },
     { icon: Calendar, label: "Cycle", id: "cycle" },
-    { icon: BookHeart, label: "Journal", id: "journal" },
   ];
 
   return (
     <div className="fixed bottom-0 left-0 right-0 bg-card border-t border-border shadow-glow z-50">
-      <div className="grid grid-cols-6 p-2 max-w-md mx-auto">
+      <div className="grid grid-cols-5 p-2 max-w-md mx-auto">
         {navigationItems.map((item) => {
           const Icon = item.icon;
           const isActive = activeTab === item.id;

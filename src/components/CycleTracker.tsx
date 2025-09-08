@@ -3,7 +3,7 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Heart, Moon, Sun } from "lucide-react";
 
 const CycleTracker = () => {
-  const currentDay = 12;
+  const currentDay = 0;
   const cycleLength = 28;
   const phase = getCurrentPhase(currentDay);
   

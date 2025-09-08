@@ -11,14 +11,14 @@ interface QuickStats {
   journalEntries: number;
 }
 
-const Dashboard = () => {
+const Dashboard = ({ setActiveTab }) => {
   const stats: QuickStats = {
-    waterGlasses: 4,
-    waterGoal: 8,
-    mealsLogged: 2,
-    workoutMinutes: 45,
-    cycleDay: 12,
-    journalEntries: 3,
+    waterGlasses: 0,
+    waterGoal: 0,
+    mealsLogged: 0,
+    workoutMinutes: 0,
+    cycleDay: 0,
+    journalEntries: 0,
   };
 
   const trackingCards = [
@@ -56,6 +56,10 @@ const Dashboard = () => {
     },
   ];
 
+  const handleJournalClick = () => {
+    setActiveTab("journal");
+  }
+
   return (
     <div className="min-h-screen bg-gradient-soft p-4 pb-20">
       <div className="max-w-md mx-auto">
@@ -73,7 +77,7 @@ const Dashboard = () => {
               <span className="text-sm">Add Water</span>
             </div>
           </Button>
-          <Button variant="secondary" className="h-16 shadow-soft">
+          <Button variant="secondary" className="h-16 shadow-soft" onClick={handleJournalClick}>
             <div className="flex flex-col items-center gap-1">
               <BookHeart className="h-5 w-5" />
               <span className="text-sm">Journal</span>

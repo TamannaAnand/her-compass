@@ -12,20 +12,7 @@ interface Meal {
 }
 
 const MealTracker = () => {
-  const [meals, setMeals] = useState<Meal[]>([
-    {
-      id: "1",
-      name: "Greek yogurt with berries",
-      type: "breakfast",
-      time: "8:30 AM"
-    },
-    {
-      id: "2", 
-      name: "Quinoa salad with vegetables",
-      type: "lunch",
-      time: "1:15 PM"
-    }
-  ]);
+  const [meals, setMeals] = useState<Meal[]>([]);
 
   const [newMeal, setNewMeal] = useState("");
   const [selectedType, setSelectedType] = useState<Meal["type"]>("breakfast");

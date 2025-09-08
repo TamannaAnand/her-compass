@@ -11,6 +11,7 @@ import WorkoutTracker from "@/components/WorkoutTracker";
 import CycleTracker from "@/components/CycleTracker";
 import Journal from "@/components/Journal";
 
+
 const queryClient = new QueryClient();
 
 const App = () => {
@@ -19,7 +20,7 @@ const App = () => {
   const renderActiveTab = () => {
     switch (activeTab) {
       case "dashboard":
-        return <Dashboard />;
+        return <Dashboard setActiveTab={setActiveTab} />;
       case "water":
         return <WaterTracker />;
       case "meals":
@@ -31,7 +32,7 @@ const App = () => {
       case "journal":
         return <Journal />;
       default:
-        return <Dashboard />;
+        return <Dashboard setActiveTab={setActiveTab} />;
     }
   };
 

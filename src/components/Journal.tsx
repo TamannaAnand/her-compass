@@ -13,24 +13,6 @@ interface JournalEntry {
 
 const Journal = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([
-    {
-      id: "1",
-      text: "Had a great morning workout! Feeling energized and ready for the day. The sun was shining and it made everything feel more positive.",
-      date: "Today",
-      time: "9:30 AM"
-    },
-    {
-      id: "2", 
-      text: "Grateful for my friend's support today. Sometimes it's the small gestures that mean the most.",
-      date: "Yesterday",
-      time: "7:15 PM"
-    },
-    {
-      id: "3",
-      text: "Tried a new healthy recipe for dinner. It was delicious! Cooking can be so therapeutic.",
-      date: "Yesterday",
-      time: "6:45 PM"
-    }
   ]);
 
   const [newEntry, setNewEntry] = useState("");

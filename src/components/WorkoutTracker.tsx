@@ -14,20 +14,6 @@ interface Workout {
 
 const WorkoutTracker = () => {
   const [workouts, setWorkouts] = useState<Workout[]>([
-    {
-      id: "1",
-      name: "Morning Yoga",
-      duration: 30,
-      type: "Flexibility",
-      date: "Today"
-    },
-    {
-      id: "2",
-      name: "Cardio Walk",
-      duration: 45,
-      type: "Cardio", 
-      date: "Yesterday"
-    }
   ]);
 
   const [isTimerActive, setIsTimerActive] = useState(false);
