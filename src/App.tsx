@@ -12,11 +12,12 @@ import CycleTracker from "@/components/CycleTracker";
 import Journal from "@/components/Journal";
 import Logout from "@/components/auth/Logout";
 import Login from "@/components/auth/Login";
-import supabase from "@/lib/supabaseClient";
+import supabase, { userId } from "@/lib/supabaseClient";
 import { useEffect } from "react";
 
 
 const queryClient = new QueryClient();
+
 
 const App = () => {
   const [activeTab, setActiveTab] = useState("dashboard");

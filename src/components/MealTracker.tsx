@@ -2,9 +2,24 @@ import { useState } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Utensils, Plus, Coffee, Sun, Moon, Apple } from "lucide-react";
-import { addMealToDb, deleteMealFromDb, updateMealInDb, fetchMealsFromDb } from "@/lib/mealAPI";
+import {
+  Utensils,
+  Plus,
+  Coffee,
+  Sun,
+  Moon,
+  Apple,
+  TrashIcon,
+  PencilIcon,
+} from "lucide-react";
+import {
+  addMealToDb,
+  deleteMealFromDb,
+  updateMealInDb,
+  fetchMealsFromDb,
+} from "@/lib/mealAPI";
 import { useEffect } from "react";
+
 
 interface Meal {
   id: string;
@@ -13,7 +28,7 @@ interface Meal {
   time: string;
 }
 
-const MealTracker = ({userId}) => {
+const MealTracker = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [newMeal, setNewMeal] = useState("");
   const [selectedType, setSelectedType] = useState<Meal["type"]>("breakfast");
@@ -25,14 +40,14 @@ const MealTracker = ({userId}) => {
     { type: "snack" as const, icon: Apple, label: "Snack" },
   ];
 
-// Fetch meals from DB on mount
+  // Fetch meals from DB on mount
   useEffect(() => {
     const fetchMeals = async () => {
-      const data = await fetchMealsFromDb(userId);
+      const data = await fetchMealsFromDb(); // 👈 no need to pass userId
       if (data) setMeals(data);
     };
     fetchMeals();
-  }, [userId]);
+  }, []);
 
   const handleAddMeal = async () => {
     if (newMeal.trim()) {
@@ -41,18 +56,16 @@ const MealTracker = ({userId}) => {
         name: newMeal.trim(),
         type: selectedType,
         time: now.toISOString(),
-        user_id: userId,
       };
       await addMealToDb(meal);
-      // Refetch meals after adding
-      const data = await fetchMealsFromDb(userId);
+      const data = await fetchMealsFromDb();
       if (data) setMeals(data);
       setNewMeal("");
     }
   };
 
   const getMealsByType = (type: Meal["type"]) => {
-    return meals.filter(meal => meal.type === type);
+    return meals.filter((meal) => meal.type === type);
   };
 
   return (
@@ -109,22 +122,61 @@ const MealTracker = ({userId}) => {
         <div className="space-y-6">
           {mealTypes.map(({ type, icon: Icon, label }) => {
             const typeMeals = getMealsByType(type);
-            
+
             return (
               <div key={type}>
                 <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
                   <Icon className="h-5 w-5 text-primary" />
                   {label}
                 </h3>
-                
+
                 {typeMeals.length > 0 ? (
                   <div className="space-y-2">
                     {typeMeals.map((meal) => (
                       <Card key={meal.id} className="bg-card shadow-soft">
                         <CardContent className="p-4">
                           <div className="flex justify-between items-center">
-                            <p className="font-medium text-foreground">{meal.name}</p>
-                            <span className="text-sm text-muted-foreground">{meal.time}</span>
+                            <p className="font-medium text-foreground">
+                              {meal.name}
+                            </p>
+
+                            <div className="flex items-center gap-2">
+                              <span className="text-sm text-muted-foreground">
+                                {new Date(meal.time).toLocaleDateString()}
+                              </span>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() =>
+                                  deleteMealFromDb(meal.id).then(async () => {
+                                    const data = await fetchMealsFromDb();
+                                    if (data) setMeals(data);
+                                  })
+                                }
+                              >
+                                <TrashIcon className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                              </Button>
+                              <Button
+                                variant="ghost"
+                                size="icon"
+                                onClick={() => {
+                                  const updatedName = prompt(
+                                    "Update meal name",
+                                    meal.name
+                                  );
+                                  if (updatedName) {
+                                    updateMealInDb(meal.id, {
+                                      name: updatedName,
+                                    }).then(async () => {
+                                      const data = await fetchMealsFromDb();
+                                      if (data) setMeals(data);
+                                    });
+                                  }
+                                }}
+                              >
+                                <PencilIcon className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                              </Button>
+                            </div>
                           </div>
                         </CardContent>
                       </Card>
@@ -134,7 +186,9 @@ const MealTracker = ({userId}) => {
                   <Card className="bg-muted/30 border-dashed">
                     <CardContent className="p-6 text-center">
                       <Utensils className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" />
-                      <p className="text-muted-foreground text-sm">No {label.toLowerCase()} logged yet</p>
+                      <p className="text-muted-foreground text-sm">
+                        No {label.toLowerCase()} logged yet
+                      </p>
                     </CardContent>
                   </Card>
                 )}

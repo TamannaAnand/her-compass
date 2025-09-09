@@ -23,15 +23,15 @@ const Login = ({ setActiveTab }) => {
       <div className="max-w-md mx-auto">
          <div className="text-center mb-8 pt-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome Back!
+            Welcome to Her Compass!
           </h1>
           <p className="text-muted-foreground">
-            Login to start tracking your wellness journey
+            Login or Sign-up to start tracking your wellness journey
           </p>
         </div>
         <Card className="mb-8 bg-gradient-accent border-0 shadow-glow">
           <CardContent className="p-8 text-center">
-            Please Login with your Google Account
+            Please Login or Sign-up with your Google Account
             <Button
               size="lg"
               className="mt-6 bg-primary hover:bg-primary/90 shadow-soft"
