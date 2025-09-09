@@ -21,7 +21,7 @@ const queryClient = new QueryClient();
 
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState("login");
+  const [activeTab, setActiveTab] = useState("dashboard");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
@@ -40,7 +40,32 @@ const App = () => {
     };
   }, []);
 
+   const handleTabChange = (tab) => {
+    // If user is not logged in, only allow login and signup
+    if (!isLoggedIn && tab !== "login" && tab !== "signup") {
+      return;
+    }
+    
+    // If user is logged in and tries to access auth pages, redirect to dashboard
+    if (isLoggedIn && (tab === "login" || tab === "signup")) {
+      setActiveTab("dashboard");
+      return;
+    }
+    
+    setActiveTab(tab);
+  };
+
   const renderActiveTab = () => {
+
+     // If not logged in, only show auth pages
+    if (!isLoggedIn) {
+      switch (activeTab) {
+        case "signup":
+          return <SignUp setActiveTab={handleTabChange} />;
+        default:
+          return <Login setActiveTab={handleTabChange} />;
+      }
+    }
 
     switch (activeTab) {
       case "dashboard":

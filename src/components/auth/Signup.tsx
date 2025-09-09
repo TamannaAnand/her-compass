@@ -12,6 +12,8 @@ const SignUp = ({ setActiveTab }) => {
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState('');
+  const [success, setSuccess] = useState('');
 
   const onSwitchToLogin = () => {
     setActiveTab("login");
@@ -19,47 +21,97 @@ const SignUp = ({ setActiveTab }) => {
 
   const handleGoogleSignup = async () => {
     setIsLoading(true);
+    setError('');
+    
     try {
-     
-      const { error } = await supabase.auth.signInWithOAuth({
+      const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: window.location.origin,
+          redirectTo: `${window.location.origin}/dashboard`,
         },
       });
+      
       if (error) {
-        console.error(error.message);
-      } else {
-        setActiveTab("dashboard");
+        setError(error.message);
+        setIsLoading(false);
       }
+      // Note: OAuth will redirect, so we don't set loading to false here
+      // The redirect will handle the completion
       
     } catch (error) {
-      console.error(error);
+      console.error('Google signup error:', error);
+      setError('An unexpected error occurred with Google signup');
       setIsLoading(false);
     }
   };
 
+  const validateForm = () => {
+    if (!name.trim()) {
+      setError('Full name is required');
+      return false;
+    }
+    if (!email.trim()) {
+      setError('Email is required');
+      return false;
+    }
+    if (!password) {
+      setError('Password is required');
+      return false;
+    }
+    if (password.length < 6) {
+      setError('Password must be at least 6 characters');
+      return false;
+    }
+    if (password !== confirmPassword) {
+      setError('Passwords do not match');
+      return false;
+    }
+    return true;
+  };
+
   const handleEmailSignup = async () => {
-    if (!name || !email || !password || password !== confirmPassword) return;
+    setError('');
+    setSuccess('');
+    
+    if (!validateForm()) return;
     
     setIsLoading(true);
+    
     try {
-      const { error } = await supabase.auth.signUp({
-        email,
+      const { data, error } = await supabase.auth.signUp({
+        email: email.trim(),
         password,
         options: {
           data: {
-            full_name: name,
+            full_name: name.trim(),
           }
         }
       });
+      
       if (error) {
-        console.error(error.message);
-      } else {
-        setActiveTab("dashboard");
+        setError(error.message);
+        setIsLoading(false);
+        return;
       }
+
+      // Check if user needs to confirm email
+      if (data.user && !data.session) {
+        setSuccess('Please check your email and click the confirmation link to complete your signup.');
+        setIsLoading(false);
+      } else if (data.session) {
+        // User is immediately signed in
+        setSuccess('Account created successfully!');
+        setTimeout(() => {
+          setActiveTab("dashboard");
+        }, 1000);
+      } else {
+        setError('Signup completed but something went wrong. Please try logging in.');
+        setIsLoading(false);
+      }
+      
     } catch (error) {
-      console.error(error);
+      console.error('Email signup error:', error);
+      setError('An unexpected error occurred during signup');
       setIsLoading(false);
     }
   };
@@ -78,6 +130,20 @@ const SignUp = ({ setActiveTab }) => {
 
         <Card className="mb-6 bg-gradient-accent border-0 shadow-glow">
           <CardContent className="p-8">
+            {/* Error Message */}
+            {error && (
+              <div className="mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-lg text-sm">
+                {error}
+              </div>
+            )}
+            
+            {/* Success Message */}
+            {success && (
+              <div className="mb-4 p-3 bg-green-100 border border-green-400 text-green-700 rounded-lg text-sm">
+                {success}
+              </div>
+            )}
+
             <div className="space-y-4">
               <div className="relative">
                 <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
@@ -87,6 +153,7 @@ const SignUp = ({ setActiveTab }) => {
                   value={name}
                   onChange={(e) => setName(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  disabled={isLoading}
                 />
               </div>
 
@@ -98,6 +165,7 @@ const SignUp = ({ setActiveTab }) => {
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  disabled={isLoading}
                 />
               </div>
               
@@ -105,15 +173,17 @@ const SignUp = ({ setActiveTab }) => {
                 <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Password"
+                  placeholder="Password (min 6 characters)"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-12 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isLoading}
                 >
                   {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
@@ -127,25 +197,23 @@ const SignUp = ({ setActiveTab }) => {
                   value={confirmPassword}
                   onChange={(e) => setConfirmPassword(e.target.value)}
                   className="w-full pl-10 pr-12 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  disabled={isLoading}
                 />
                 <button
                   type="button"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  disabled={isLoading}
                 >
                   {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
                 </button>
               </div>
 
-              {password && confirmPassword && password !== confirmPassword && (
-                <p className="text-sm text-red-500">Passwords do not match</p>
-              )}
-
               <Button
                 onClick={handleEmailSignup}
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 shadow-soft"
-                disabled={isLoading || !name || !email || !password || password !== confirmPassword}
+                disabled={isLoading}
               >
                 {isLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
@@ -156,7 +224,7 @@ const SignUp = ({ setActiveTab }) => {
                 <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 bg-card text-muted-foreground">or</span>
+                <span className="px-2 text-sm">or</span>
               </div>
             </div>
 
@@ -185,7 +253,7 @@ const SignUp = ({ setActiveTab }) => {
                   d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
                 />
               </svg>
-              Continue with Google
+              Sign up with Google
             </Button>
           </CardContent>
         </Card>
