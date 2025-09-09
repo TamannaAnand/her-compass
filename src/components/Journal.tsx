@@ -1,37 +1,63 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
-import { BookHeart, Plus, Edit3 } from "lucide-react";
+import { BookHeart, Plus, Edit3, TrashIcon, PencilIcon } from "lucide-react";
+import {
+  fetchEntriesFromDb,
+  addEntryToDb,
+  deleteEntryFromDb,
+  updateEntryInDb,
+} from "@/lib/journalAPI";
 
 interface JournalEntry {
   id: string;
   text: string;
-  date: string;
   time: string;
 }
 
 const Journal = () => {
-  const [entries, setEntries] = useState<JournalEntry[]>([
-  ]);
-
+  const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [newEntry, setNewEntry] = useState("");
   const [isWriting, setIsWriting] = useState(false);
 
-  const addEntry = () => {
+  // Fetch journal entries on mount
+  useEffect(() => {
+    const fetchEntries = async () => {
+      const data = await fetchEntriesFromDb();
+      if (data) setEntries(data);
+    };
+    fetchEntries();
+  }, []);
+
+  // Add new entry
+  const handleAddEntry = async () => {
     if (newEntry.trim()) {
       const now = new Date();
-      const entry: JournalEntry = {
-        id: Date.now().toString(),
+      const entry = {
         text: newEntry.trim(),
-        date: "Today",
-        time: now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })
+        time: now.toISOString(),
       };
-      
-      setEntries([entry, ...entries]);
+      await addEntryToDb(entry);
+      const data = await fetchEntriesFromDb();
+      if (data) setEntries(data);
       setNewEntry("");
       setIsWriting(false);
     }
+  };
+
+  // Delete entry
+  const handleDeleteEntry = async (entryId: string) => {
+    await deleteEntryFromDb(entryId);
+    const data = await fetchEntriesFromDb();
+    if (data) setEntries(data);
+  };
+
+  // Edit entry (for simplicity, just pre-fill the new entry form)
+  const handleEditEntry = (entry: JournalEntry) => {
+    setNewEntry(entry.text);
+    setIsWriting(true);
+    handleDeleteEntry(entry.id); // Remove old entry, will be replaced on save
   };
 
   return (
@@ -72,11 +98,11 @@ const Journal = () => {
                 autoFocus
               />
               <div className="flex gap-2">
-                <Button onClick={addEntry} className="flex-1">
+                <Button onClick={handleAddEntry} className="flex-1">
                   Save Entry
                 </Button>
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   onClick={() => {
                     setIsWriting(false);
                     setNewEntry("");
@@ -98,9 +124,32 @@ const Journal = () => {
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
                     <BookHeart className="h-4 w-4 text-primary" />
-                    <span className="text-sm font-medium text-primary">{entry.date}</span>
+                    <span className="text-sm font-medium text-primary">
+                      {new Date(entry.time).toLocaleDateString()}
+                    </span>
                   </div>
-                  <span className="text-xs text-muted-foreground">{entry.time}</span>
+                  <div className="flex items-center gap-2">
+                    <span className="text-xs text-muted-foreground">
+                      {new Date(entry.time).toLocaleTimeString([], {
+                        hour: "2-digit",
+                        minute: "2-digit",
+                      })}
+                    </span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteEntry(entry.id)}
+                    >
+                      <TrashIcon className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleEditEntry(entry)}
+                    >
+                     <PencilIcon className="h-4 w-4 text-muted-foreground hover:text-primary" /> 
+                    </Button>
+                  </div>
                 </div>
                 <p className="text-foreground leading-relaxed">{entry.text}</p>
               </CardContent>
@@ -108,11 +157,14 @@ const Journal = () => {
           ))}
         </div>
 
+        {/* Empty State */}
         {entries.length === 0 && !isWriting && (
           <div className="text-center py-12">
             <BookHeart className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
             <p className="text-muted-foreground text-lg mb-2">No entries yet</p>
-            <p className="text-muted-foreground text-sm">Start writing to capture your thoughts</p>
+            <p className="text-muted-foreground text-sm">
+              Start writing to capture your thoughts
+            </p>
           </div>
         )}
       </div>
