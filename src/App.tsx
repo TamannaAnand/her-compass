@@ -12,15 +12,16 @@ import CycleTracker from "@/components/CycleTracker";
 import Journal from "@/components/Journal";
 import Logout from "@/components/auth/Logout";
 import Login from "@/components/auth/Login";
-import supabase, { userId } from "@/lib/supabaseClient";
+import supabase from "@/api/supabaseClient";
 import { useEffect } from "react";
+import SignUp from "./components/auth/Signup";
 
 
 const queryClient = new QueryClient();
 
 
 const App = () => {
-  const [activeTab, setActiveTab] = useState("dashboard");
+  const [activeTab, setActiveTab] = useState("login");
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
     useEffect(() => {
@@ -40,9 +41,7 @@ const App = () => {
   }, []);
 
   const renderActiveTab = () => {
-        if (!isLoggedIn) {
-      return <Login setActiveTab={setActiveTab} />;
-    }
+
     switch (activeTab) {
       case "dashboard":
         return <Dashboard setActiveTab={setActiveTab} />;
@@ -58,7 +57,12 @@ const App = () => {
         return <Journal />;
       case "logout":
         return <Logout setActiveTab={setActiveTab} />;
+      case "signup":
+        return <SignUp setActiveTab={setActiveTab} />;
+      default:
+        return <Login setActiveTab={setActiveTab} />;
     }
+
   };
 
   return (

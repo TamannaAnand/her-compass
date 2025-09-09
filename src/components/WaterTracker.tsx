@@ -6,7 +6,7 @@ import {
   fetchWaterFromDb,
   addWaterToDb,
   updateWaterInDb,
-} from "@/lib/waterAPI";
+} from "@/api/waterAPI";
 
 const WaterTracker = () => {
   const dailyGoal = 8;

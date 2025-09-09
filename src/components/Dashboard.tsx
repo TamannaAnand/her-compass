@@ -8,10 +8,10 @@ import {
   BookHeart,
   Plus,
 } from "lucide-react";
-import { fetchWaterFromDb } from "@/lib/waterAPI";
-import { fetchMealsFromDb } from "@/lib/mealAPI";
-import { fetchWorkoutsFromDb } from "@/lib/workoutAPI";
-import { fetchEntriesFromDb } from "@/lib/journalAPI";
+import { fetchWaterFromDb } from "@/api/waterAPI";
+import { fetchMealsFromDb } from "@/api/mealAPI";
+import { fetchWorkoutsFromDb } from "@/api/workoutAPI";
+import { fetchEntriesFromDb } from "@/api/journalAPI";
 import { useEffect, useState } from "react";
 
 interface QuickStats {

@@ -3,7 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Dumbbell, Plus, Play, Pause, RotateCcw, Timer, TrashIcon, PencilIcon } from "lucide-react";
-import { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb } from "@/lib/workoutAPI";
+import { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb } from "@/api/workoutAPI";
 
 interface Workout {
   id: string;

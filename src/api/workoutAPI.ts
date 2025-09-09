@@ -1,5 +1,5 @@
-// src/lib/mealsAPI.ts
-import supabase from "@/lib/supabaseClient";
+
+import supabase from "@/api/supabaseClient";
 
 // 🔧 Utility to get current logged-in user's ID
 const getCurrentUserId = async () => {
@@ -13,82 +13,82 @@ const getCurrentUserId = async () => {
 
 // -------------------- CRUD FUNCTIONS -------------------- //
 
-// Insert meal for current user
-const addMealToDb = async (meal) => {
+// Insert workout for current user
+const addWorkoutToDb = async (workout) => {
   const uid = await getCurrentUserId();
   if (!uid) {
-    console.error("❌ No logged-in user found. Cannot add meal.");
+    console.error("❌ No logged-in user found. Cannot add entry.");
     return null;
   }
 
   const { data, error } = await supabase
-    .from("meal_tracker")
+    .from("workout_tracker")
     .insert([
       {
-        ...meal,
+        ...workout,
         user_id: uid, // ✅ attach user automatically
       },
     ]);
 
   if (error) {
-    console.error("Error inserting meal:", error);
+    console.error("Error inserting workout:", error);
     return null;
   }
   return data;
 };
 
-// Delete meal by id (scoped to current user)
-const deleteMealFromDb = async (mealId) => {
+// Delete workout by id (scoped to current user)
+const deleteWorkoutFromDb = async (workoutId) => {
   const uid = await getCurrentUserId();
   if (!uid) return null;
 
   const { data, error } = await supabase
-    .from("meal_tracker")
+    .from("workout_tracker")
     .delete()
-    .eq("id", mealId)
+    .eq("id", workoutId)
     .eq("user_id", uid); // ✅ ensures user can only delete their meals
 
   if (error) {
-    console.error("Error deleting meal:", error);
+    console.error("Error deleting workout:", error);
     return null;
   }
   return data;
 };
 
-// Read all meals for current user
-const fetchMealsFromDb = async () => {
+// Read all journal entries for current user
+const fetchWorkoutsFromDb = async () => {
   const uid = await getCurrentUserId();
   if (!uid) return [];
 
   const { data, error } = await supabase
-    .from("meal_tracker")
+    .from("workout_tracker")
     .select("*")
     .eq("user_id", uid)
     .order("time", { ascending: false });
 
   if (error) {
-    console.error("Error fetching meals:", error);
+    console.error("Error fetching Workouts:", error);
     return [];
   }
   return data;
 };
 
 // Update meal (only if it belongs to current user)
-const updateMealInDb = async (mealId, updatedMeal) => {
+const updateWorkoutInDb = async (workoutId, updatedWorkout) => {
   const uid = await getCurrentUserId();
   if (!uid) return null;
 
   const { data, error } = await supabase
-    .from("meal_tracker")
-    .update(updatedMeal)
-    .eq("id", mealId)
+    .from("workout_tracker")
+    .update(updatedWorkout)
+    .eq("id", workoutId)
     .eq("user_id", uid);
 
   if (error) {
-    console.error("Error updating meal:", error);
+    console.error("Error updating workout:", error);
     return null;
   }
   return data;
 };
 
-export { addMealToDb, deleteMealFromDb, fetchMealsFromDb, updateMealInDb };
+export { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb };

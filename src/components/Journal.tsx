@@ -8,7 +8,7 @@ import {
   addEntryToDb,
   deleteEntryFromDb,
   updateEntryInDb,
-} from "@/lib/journalAPI";
+} from "@/api/journalAPI";
 
 interface JournalEntry {
   id: string;

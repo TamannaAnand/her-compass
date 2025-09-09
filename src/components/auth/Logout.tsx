@@ -1,6 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import supabase from "@/lib/supabaseClient";
+import supabase from "@/api/supabaseClient";
 
 const Logout = ({ setActiveTab }) => {
   const handleLogout = async () => {

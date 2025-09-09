@@ -1,18 +1,26 @@
-import { Card, CardContent } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
+import { useState } from 'react';
+import { Card, CardContent } from '@/components/ui/card';
+import { Button } from '@/components/ui/button';
+import { Eye, EyeOff, Mail, Lock, User } from 'lucide-react';
 import supabase from "@/api/supabaseClient";
-import { Eye, EyeOff, Mail, Lock, User } from "lucide-react";
-import { useState } from "react";
 
-const Login = ({ setActiveTab }) => {
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+const SignUp = ({ setActiveTab }) => {
+  const [name, setName] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [confirmPassword, setConfirmPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  // Handle Google OAuth login
-  const handleGoogleLogin = async () => {
+
+  const onSwitchToLogin = () => {
+    setActiveTab("login");
+  }
+
+  const handleGoogleSignup = async () => {
     setIsLoading(true);
     try {
+     
       const { error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
@@ -20,24 +28,30 @@ const Login = ({ setActiveTab }) => {
         },
       });
       if (error) {
-        // Handle error (show toast, etc.)
         console.error(error.message);
       } else {
-        setActiveTab("dashboard"); // Redirect to dashboard on successful login
+        setActiveTab("dashboard");
       }
+      
     } catch (error) {
-      console.error("Unexpected error during Google login:", error);
+      console.error(error);
+      setIsLoading(false);
     }
   };
 
-  // handle email/password login (if needed in future)
-  const handleEmailLogin = async () => {
-    if (!email || !password) return;
+  const handleEmailSignup = async () => {
+    if (!name || !email || !password || password !== confirmPassword) return;
+    
     setIsLoading(true);
     try {
-      const { error } = await supabase.auth.signInWithPassword({
+      const { error } = await supabase.auth.signUp({
         email,
         password,
+        options: {
+          data: {
+            full_name: name,
+          }
+        }
       });
       if (error) {
         console.error(error.message);
@@ -45,29 +59,37 @@ const Login = ({ setActiveTab }) => {
         setActiveTab("dashboard");
       }
     } catch (error) {
-      console.error("Unexpected error during email login:", error);
+      console.error(error);
+      setIsLoading(false);
     }
   };
 
-  const onSwitchToSignup = () => {
-    setActiveTab("signup");
-  }
-
- return (
+  return (
     <div className="p-4 pb-20">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8 pt-8">
           <h1 className="text-3xl font-bold text-foreground mb-2">
-            Welcome Back!
+            Join Her Compass!
           </h1>
           <p className="text-muted-foreground">
-            Login to continue your wellness journey
+            Create your account to start tracking your wellness journey
           </p>
         </div>
 
         <Card className="mb-6 bg-gradient-accent border-0 shadow-glow">
           <CardContent className="p-8">
             <div className="space-y-4">
+              <div className="relative">
+                <User className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <input
+                  type="text"
+                  placeholder="Full Name"
+                  value={name}
+                  onChange={(e) => setName(e.target.value)}
+                  className="w-full pl-10 pr-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                />
+              </div>
+
               <div className="relative">
                 <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <input
@@ -97,13 +119,35 @@ const Login = ({ setActiveTab }) => {
                 </button>
               </div>
 
+              <div className="relative">
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <input
+                  type={showConfirmPassword ? "text" : "password"}
+                  placeholder="Confirm Password"
+                  value={confirmPassword}
+                  onChange={(e) => setConfirmPassword(e.target.value)}
+                  className="w-full pl-10 pr-12 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                  className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                >
+                  {showConfirmPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+
+              {password && confirmPassword && password !== confirmPassword && (
+                <p className="text-sm text-red-500">Passwords do not match</p>
+              )}
+
               <Button
-                onClick={handleEmailLogin}
+                onClick={handleEmailSignup}
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 shadow-soft"
-                disabled={isLoading || !email || !password}
+                disabled={isLoading || !name || !email || !password || password !== confirmPassword}
               >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                {isLoading ? 'Creating Account...' : 'Create Account'}
               </Button>
             </div>
 
@@ -112,7 +156,7 @@ const Login = ({ setActiveTab }) => {
                 <div className="w-full border-t border-border"></div>
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="px-2 text-sm">or</span>
+                <span className="px-2 bg-card text-muted-foreground">or</span>
               </div>
             </div>
 
@@ -120,7 +164,7 @@ const Login = ({ setActiveTab }) => {
               size="lg"
               variant="outline"
               className="w-full bg-background/50 border-border hover:bg-background/70 shadow-soft"
-              onClick={handleGoogleLogin}
+              onClick={handleGoogleSignup}
               disabled={isLoading}
             >
               <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
@@ -148,12 +192,12 @@ const Login = ({ setActiveTab }) => {
 
         <div className="text-center">
           <p className="text-muted-foreground">
-            Don't have an account?{' '}
+            Already have an account?{' '}
             <button
-              onClick={onSwitchToSignup}
+              onClick={onSwitchToLogin}
               className="text-primary hover:underline font-medium"
             >
-              Sign up
+              Sign in
             </button>
           </p>
         </div>
@@ -162,4 +206,4 @@ const Login = ({ setActiveTab }) => {
   );
 };
 
-export default Login;
+export default SignUp;

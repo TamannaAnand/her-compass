@@ -1,5 +1,5 @@
 
-import supabase from "@/lib/supabaseClient";
+import supabase from "@/api/supabaseClient";
 
 // 🔧 Utility to get current logged-in user's ID
 const getCurrentUserId = async () => {
@@ -13,8 +13,8 @@ const getCurrentUserId = async () => {
 
 // -------------------- CRUD FUNCTIONS -------------------- //
 
-// Insert workout for current user
-const addWorkoutToDb = async (workout) => {
+// Insert Entry for current user
+const addEntryToDb = async (entry) => {
   const uid = await getCurrentUserId();
   if (!uid) {
     console.error("❌ No logged-in user found. Cannot add entry.");
@@ -22,73 +22,73 @@ const addWorkoutToDb = async (workout) => {
   }
 
   const { data, error } = await supabase
-    .from("workout_tracker")
+    .from("journal_entries")
     .insert([
       {
-        ...workout,
+        ...entry,
         user_id: uid, // ✅ attach user automatically
       },
     ]);
 
   if (error) {
-    console.error("Error inserting workout:", error);
+    console.error("Error inserting entry:", error);
     return null;
   }
   return data;
 };
 
-// Delete workout by id (scoped to current user)
-const deleteWorkoutFromDb = async (workoutId) => {
+// Delete entry by id (scoped to current user)
+const deleteEntryFromDb = async (entryId) => {
   const uid = await getCurrentUserId();
   if (!uid) return null;
 
   const { data, error } = await supabase
-    .from("workout_tracker")
+    .from("journal_entries")
     .delete()
-    .eq("id", workoutId)
+    .eq("id", entryId)
     .eq("user_id", uid); // ✅ ensures user can only delete their meals
 
   if (error) {
-    console.error("Error deleting workout:", error);
+    console.error("Error deleting entry:", error);
     return null;
   }
   return data;
 };
 
 // Read all journal entries for current user
-const fetchWorkoutsFromDb = async () => {
+const fetchEntriesFromDb = async () => {
   const uid = await getCurrentUserId();
   if (!uid) return [];
 
   const { data, error } = await supabase
-    .from("workout_tracker")
+    .from("journal_entries")
     .select("*")
     .eq("user_id", uid)
     .order("time", { ascending: false });
 
   if (error) {
-    console.error("Error fetching Workouts:", error);
+    console.error("Error fetching Journal Entries:", error);
     return [];
   }
   return data;
 };
 
 // Update meal (only if it belongs to current user)
-const updateWorkoutInDb = async (workoutId, updatedWorkout) => {
+const updateEntryInDb = async (entryId, updatedEntry) => {
   const uid = await getCurrentUserId();
   if (!uid) return null;
 
   const { data, error } = await supabase
-    .from("workout_tracker")
-    .update(updatedWorkout)
-    .eq("id", workoutId)
+    .from("journal_entries")
+    .update(updatedEntry)
+    .eq("id", entryId)
     .eq("user_id", uid);
 
   if (error) {
-    console.error("Error updating workout:", error);
+    console.error("Error updating entry:", error);
     return null;
   }
   return data;
 };
 
-export { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb };
+export { addEntryToDb, deleteEntryFromDb, fetchEntriesFromDb, updateEntryInDb };

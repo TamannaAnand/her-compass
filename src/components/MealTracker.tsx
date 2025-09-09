@@ -17,7 +17,7 @@ import {
   deleteMealFromDb,
   updateMealInDb,
   fetchMealsFromDb,
-} from "@/lib/mealAPI";
+} from "@/api/mealAPI";
 import { useEffect } from "react";
 
 

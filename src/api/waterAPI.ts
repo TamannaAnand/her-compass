@@ -1,4 +1,4 @@
-import supabase from "@/lib/supabaseClient";
+import supabase from "@/api/supabaseClient";
 
 // 🔧 Utility to get current logged-in user's ID
 const getCurrentUserId = async () => {
