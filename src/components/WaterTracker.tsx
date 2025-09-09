@@ -1,23 +1,58 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import { Droplets, Plus, Minus } from "lucide-react";
+import { Droplets, Plus, Minus, Save } from "lucide-react";
+import {
+  fetchWaterFromDb,
+  addWaterToDb,
+  updateWaterInDb,
+} from "@/lib/waterAPI";
 
 const WaterTracker = () => {
-  const [waterCount, setWaterCount] = useState(4);
   const dailyGoal = 8;
-  
+  const [waterCount, setWaterCount] = useState(0);
+  const [waterEntryId, setWaterEntryId] = useState(null); // track most recent DB row
   const percentage = Math.min((waterCount / dailyGoal) * 100, 100);
 
-  const addWater = () => {
+  // Fetch most recent water entry on mount
+  useEffect(() => {
+    const loadWater = async () => {
+      const data = await fetchWaterFromDb();
+      
+      // Get the most recent entry (data is already ordered by date desc)
+      const mostRecentEntry = data[0];
+
+      if (mostRecentEntry) {
+        setWaterCount(mostRecentEntry.count);
+        setWaterEntryId(mostRecentEntry.id);
+      }
+    };
+    loadWater();
+  }, []);
+
+  const handleAddGlass = () => {
     if (waterCount < dailyGoal + 4) {
-      setWaterCount(prev => prev + 1);
+      setWaterCount((prev) => prev + 1);
     }
   };
 
-  const removeWater = () => {
+  const handleRemoveGlass = () => {
     if (waterCount > 0) {
-      setWaterCount(prev => prev - 1);
+      setWaterCount((prev) => prev - 1);
+    }
+  };
+
+  const handleSave = async () => {
+    if (waterEntryId) {
+      // Update existing entry
+      await updateWaterInDb(waterEntryId, { count: waterCount });
+    } else {
+      // Add new entry for today
+      const newEntry = await addWaterToDb({
+        date: new Date().toISOString(),
+        count: waterCount,
+      });
+      if (newEntry && newEntry[0]?.id) setWaterEntryId(newEntry[0].id);
     }
   };
 
@@ -26,8 +61,12 @@ const WaterTracker = () => {
       <div className="max-w-md mx-auto">
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Water Intake</h1>
-          <p className="text-muted-foreground">Stay hydrated throughout the day</p>
+          <h1 className="text-3xl font-bold text-foreground mb-2">
+            Water Intake
+          </h1>
+          <p className="text-muted-foreground">
+            Stay hydrated throughout the day
+          </p>
         </div>
 
         {/* Water Counter */}
@@ -36,22 +75,26 @@ const WaterTracker = () => {
             <div className="flex items-center justify-center mb-6">
               <Droplets className="h-16 w-16 text-secondary-foreground opacity-80" />
             </div>
-            
+
             <div className="space-y-4">
               <div>
-                <span className="text-4xl font-bold text-secondary-foreground">{waterCount}</span>
-                <span className="text-xl text-secondary-foreground/70 ml-2">/ {dailyGoal}</span>
+                <span className="text-4xl font-bold text-secondary-foreground">
+                  {waterCount}
+                </span>
+                <span className="text-xl text-secondary-foreground/70 ml-2">
+                  / {dailyGoal}
+                </span>
               </div>
               <p className="text-secondary-foreground/80">glasses today</p>
-              
+
               {/* Progress bar */}
               <div className="w-full bg-white/20 rounded-full h-3 mt-4">
-                <div 
+                <div
                   className="bg-white/60 h-3 rounded-full transition-all duration-300"
                   style={{ width: `${percentage}%` }}
                 ></div>
               </div>
-              
+
               <p className="text-sm text-secondary-foreground/70">
                 {percentage.toFixed(0)}% of daily goal
               </p>
@@ -62,7 +105,7 @@ const WaterTracker = () => {
         {/* Controls */}
         <div className="grid grid-cols-2 gap-4 mb-8">
           <Button
-            onClick={removeWater}
+            onClick={handleRemoveGlass}
             variant="outline"
             size="lg"
             className="h-16 border-primary/20 hover:bg-primary-soft"
@@ -72,7 +115,7 @@ const WaterTracker = () => {
             Remove
           </Button>
           <Button
-            onClick={addWater}
+            onClick={handleAddGlass}
             size="lg"
             className="h-16 bg-primary hover:bg-primary/90 shadow-soft"
           >
@@ -81,12 +124,24 @@ const WaterTracker = () => {
           </Button>
         </div>
 
+        {/* Save Button */}
+        <div className="mb-8">
+          <Button
+            onClick={handleSave}
+            size="lg"
+            className="w-full bg-gradient-accent border-0 shadow-glow h-16 flex items-center justify-center gap-3"
+          >
+            <Save className="text-secondary-foreground opacity-80" />
+            <span className="text-xl font-bold text-secondary-foreground">
+              Save Progress
+            </span>
+          </Button>
+        </div>
         {/* Daily Tips */}
         <Card className="bg-card shadow-soft">
           <CardHeader>
             <CardTitle className="text-lg flex items-center gap-2">
-              <Droplets className="h-5 w-5 text-primary" />
-              Hydration Tips
+              <Droplets className="h-5 w-5 text-primary" /> Hydration Tips
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-3">

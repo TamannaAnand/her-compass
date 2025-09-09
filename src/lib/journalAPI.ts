@@ -1,4 +1,4 @@
-// src/lib/mealsAPI.ts
+
 import supabase from "@/lib/supabaseClient";
 
 // 🔧 Utility to get current logged-in user's ID

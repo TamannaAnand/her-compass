@@ -1,21 +1,20 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dumbbell, Plus, Play, Pause, RotateCcw, Timer } from "lucide-react";
+import { Dumbbell, Plus, Play, Pause, RotateCcw, Timer, TrashIcon, PencilIcon } from "lucide-react";
+import { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb } from "@/lib/workoutAPI";
 
 interface Workout {
   id: string;
   name: string;
   duration: number;
   type: string;
-  date: string;
+  time: string;
 }
 
 const WorkoutTracker = () => {
-  const [workouts, setWorkouts] = useState<Workout[]>([
-  ]);
-
+  const [workouts, setWorkouts] = useState<Workout[]>([]);
   const [isTimerActive, setIsTimerActive] = useState(false);
   const [timerMinutes, setTimerMinutes] = useState(0);
   const [timerSeconds, setTimerSeconds] = useState(0);
@@ -24,14 +23,22 @@ const WorkoutTracker = () => {
 
   const workoutTypes = ["Cardio", "Strength", "Flexibility", "HIIT", "Yoga", "Pilates"];
 
-  const startTimer = () => {
-    setIsTimerActive(true);
-    // Timer logic would be implemented with setInterval
-  };
-
-  const pauseTimer = () => {
-    setIsTimerActive(false);
-  };
+  // -------------------- Timer Logic --------------------
+  useEffect(() => {
+    let interval: NodeJS.Timeout;
+    if (isTimerActive) {
+      interval = setInterval(() => {
+        setTimerSeconds((prev) => {
+          if (prev + 1 === 60) {
+            setTimerMinutes((m) => m + 1);
+            return 0;
+          }
+          return prev + 1;
+        });
+      }, 1000);
+    }
+    return () => clearInterval(interval);
+  }, [isTimerActive]);
 
   const resetTimer = () => {
     setIsTimerActive(false);
@@ -39,26 +46,51 @@ const WorkoutTracker = () => {
     setTimerSeconds(0);
   };
 
-  const finishWorkout = () => {
-    if (workoutName.trim() && (timerMinutes > 0 || timerSeconds > 0)) {
-      const totalMinutes = timerMinutes + (timerSeconds > 0 ? 1 : 0);
-      const newWorkout: Workout = {
-        id: Date.now().toString(),
-        name: workoutName.trim(),
-        duration: totalMinutes,
-        type: workoutType,
-        date: "Today"
-      };
-      
-      setWorkouts([newWorkout, ...workouts]);
-      setWorkoutName("");
-      resetTimer();
-    }
+  // -------------------- DB Logic --------------------
+  const fetchWorkouts = async () => {
+    const data = await fetchWorkoutsFromDb();
+    if (data) setWorkouts(data);
   };
 
-  const todaysWorkouts = workouts.filter(w => w.date === "Today");
+  useEffect(() => {
+    fetchWorkouts();
+  }, []);
+
+  const handleAddWorkout = async () => {
+    if (!workoutName.trim() || (timerMinutes === 0 && timerSeconds === 0)) return;
+
+    const totalMinutes = timerMinutes + (timerSeconds > 0 ? 1 : 0);
+    const newWorkout = {
+      name: workoutName.trim(),
+      duration: totalMinutes,
+      type: workoutType,
+      time: new Date().toISOString(),
+    };
+
+    await addWorkoutToDb(newWorkout);
+    await fetchWorkouts();
+
+    setWorkoutName("");
+    resetTimer();
+  };
+
+  const handleDeleteWorkout = async (workoutId: string) => {
+    await deleteWorkoutFromDb(workoutId);
+    await fetchWorkouts();
+  };
+
+  // const handleUpdateWorkout = async (workoutId: string, updatedWorkout: Partial<Workout>) => {
+  //   // This function can be implemented to update a workout if needed
+  //   await updateWorkoutInDb(workoutId, updatedWorkout);
+  //   await fetchWorkouts();
+  // }
+
+  const todaysWorkouts = workouts.filter(
+    (w) => new Date(w.time).toDateString() === new Date().toDateString()
+  );
   const totalMinutes = todaysWorkouts.reduce((sum, w) => sum + w.duration, 0);
 
+  // -------------------- Render --------------------
   return (
     <div className="min-h-screen bg-gradient-soft p-4 pb-20">
       <div className="max-w-md mx-auto">
@@ -71,12 +103,10 @@ const WorkoutTracker = () => {
         {/* Today's Summary */}
         <Card className="mb-8 bg-gradient-primary border-0 shadow-glow">
           <CardContent className="p-6 text-center">
-            <div className="space-y-2">
-              <Dumbbell className="h-12 w-12 text-primary-foreground mx-auto opacity-80" />
-              <p className="text-sm text-primary-foreground opacity-90">Today's Total</p>
-              <p className="text-3xl font-bold text-primary-foreground">{totalMinutes}</p>
-              <p className="text-sm text-primary-foreground opacity-75">minutes active</p>
-            </div>
+            <Dumbbell className="h-12 w-12 text-primary-foreground mx-auto opacity-80" />
+            <p className="text-sm text-primary-foreground opacity-90">Today's Total</p>
+            <p className="text-3xl font-bold text-primary-foreground">{totalMinutes}</p>
+            <p className="text-sm text-primary-foreground opacity-75">minutes active</p>
           </CardContent>
         </Card>
 
@@ -89,43 +119,34 @@ const WorkoutTracker = () => {
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
-            {/* Timer Display */}
             <div className="text-center bg-muted/30 rounded-lg p-6">
               <div className="text-4xl font-mono font-bold text-foreground">
-                {String(timerMinutes).padStart(2, '0')}:{String(timerSeconds).padStart(2, '0')}
+                {String(timerMinutes).padStart(2, "0")}:{String(timerSeconds).padStart(2, "0")}
               </div>
               <p className="text-sm text-muted-foreground mt-1">minutes:seconds</p>
             </div>
 
-            {/* Timer Controls */}
             <div className="flex gap-2">
-              <Button
-                variant="outline"
-                size="sm"
-                className="flex-1"
-                onClick={resetTimer}
-              >
+              <Button variant="outline" size="sm" className="flex-1" onClick={resetTimer}>
                 <RotateCcw className="h-4 w-4" />
               </Button>
               <Button
                 variant={isTimerActive ? "secondary" : "default"}
                 size="sm"
                 className="flex-1"
-                onClick={isTimerActive ? pauseTimer : startTimer}
+                onClick={() => setIsTimerActive(!isTimerActive)}
               >
                 {isTimerActive ? <Pause className="h-4 w-4" /> : <Play className="h-4 w-4" />}
               </Button>
             </div>
 
-            {/* Workout Details */}
             <div className="space-y-3 pt-4 border-t">
               <Input
                 placeholder="Workout name"
                 value={workoutName}
                 onChange={(e) => setWorkoutName(e.target.value)}
               />
-              
-              {/* Workout Type */}
+
               <div className="grid grid-cols-3 gap-2">
                 {workoutTypes.map((type) => (
                   <Button
@@ -139,8 +160,8 @@ const WorkoutTracker = () => {
                 ))}
               </div>
 
-              <Button 
-                onClick={finishWorkout}
+              <Button
+                onClick={handleAddWorkout}
                 className="w-full"
                 disabled={!workoutName.trim() || (timerMinutes === 0 && timerSeconds === 0)}
               >
@@ -156,16 +177,30 @@ const WorkoutTracker = () => {
           <h3 className="text-lg font-semibold text-foreground">Recent Workouts</h3>
           {workouts.map((workout) => (
             <Card key={workout.id} className="bg-card shadow-soft">
-              <CardContent className="p-4">
-                <div className="flex justify-between items-start">
-                  <div>
-                    <h4 className="font-medium text-foreground">{workout.name}</h4>
-                    <p className="text-sm text-muted-foreground">{workout.type}</p>
-                  </div>
-                  <div className="text-right">
-                    <p className="font-semibold text-primary">{workout.duration}min</p>
-                    <p className="text-xs text-muted-foreground">{workout.date}</p>
-                  </div>
+              <CardContent className="p-4 flex justify-between items-start">
+                <div>
+                  <h4 className="font-medium text-foreground">{workout.name}</h4>
+                  <p className="text-sm text-muted-foreground">{workout.type}</p>
+                </div>
+                <div className="text-right flex flex-col items-end gap-1">
+                  <p className="font-semibold text-primary">{workout.duration} min</p>
+                  <p className="text-xs text-muted-foreground">
+                    {new Date(workout.time).toLocaleDateString()}
+                  </p>
+                  <Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleDeleteWorkout(workout.id)}
+                  >
+                    <TrashIcon className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                  </Button>
+                 {/*<Button
+                    variant="ghost"
+                    size="icon"
+                    onClick={() => handleUpdateWorkout(workout.id, { name: "Updated Name" })}
+                  >
+                    <PencilIcon className="h-4 w-4 text-muted-foreground hover:text-primary" />
+                  </Button>*/}
                 </div>
               </CardContent>
             </Card>
