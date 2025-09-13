@@ -8,7 +8,7 @@ import BottomNavigation from "@/components/BottomNavigation";
 import WaterTracker from "@/components/WaterTracker";
 import MealTracker from "@/components/MealTracker";
 import WorkoutTracker from "@/components/WorkoutTracker";
-import CycleTracker from "@/components/CycleTracker";
+import CycleTracker from "@/components/PeriodTracker";
 import Journal from "@/components/Journal";
 import Logout from "@/components/auth/Logout";
 import Login from "@/components/auth/Login";
