@@ -7,8 +7,10 @@ import {
   addWaterToDb,
   updateWaterInDb,
 } from "@/api/waterAPI";
+import { useTheme } from "@/theme/useTheme";
 
 const WaterTracker = () => {
+  const theme = useTheme();
   const dailyGoal = 8;
   const [waterCount, setWaterCount] = useState(0);
   const [waterEntryId, setWaterEntryId] = useState(null); // track most recent DB row
@@ -18,10 +20,7 @@ const WaterTracker = () => {
   useEffect(() => {
     const loadWater = async () => {
       const data = await fetchWaterFromDb();
-      
-      // Get the most recent entry (data is already ordered by date desc)
       const mostRecentEntry = data[0];
-
       if (mostRecentEntry) {
         setWaterCount(mostRecentEntry.count);
         setWaterEntryId(mostRecentEntry.id);
@@ -44,10 +43,8 @@ const WaterTracker = () => {
 
   const handleSave = async () => {
     if (waterEntryId) {
-      // Update existing entry
       await updateWaterInDb(waterEntryId, { count: waterCount });
     } else {
-      // Add new entry for today
       const newEntry = await addWaterToDb({
         date: new Date().toISOString(),
         count: waterCount,
@@ -57,108 +54,96 @@ const WaterTracker = () => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-soft p-4 pb-20">
-      <div className="max-w-md mx-auto">
+    <div className={`${theme.mainContainer}`}>
+      <div className={`${theme.innerContainer}`}>
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Water Intake
-          </h1>
-          <p className="text-muted-foreground">
+          <h1 className={theme.sectionHeader}>Water Intake</h1>
+          <p className={`${theme.sectionSubHeader} pb-3`}>
             Stay hydrated throughout the day
           </p>
-        </div>
-
-        {/* Water Counter */}
-        <Card className="mb-8 bg-gradient-accent border-0 shadow-glow">
-          <CardContent className="p-8 text-center">
-            <div className="flex items-center justify-center mb-6">
-              <Droplets className="h-16 w-16 text-secondary-foreground opacity-80" />
-            </div>
-
-            <div className="space-y-4">
-              <div>
-                <span className="text-4xl font-bold text-secondary-foreground">
-                  {waterCount}
-                </span>
-                <span className="text-xl text-secondary-foreground/70 ml-2">
-                  / {dailyGoal}
-                </span>
+          {/* Water Counter */}
+          <Card className={`mb-8 bg-gradient-accent border-0 shadow-glow`}>
+            <CardContent className={theme.cardContentBase + " text-center"}>
+              <div className="flex items-center justify-center mb-6">
+                <Droplets
+                  className="h-16 w-16 text-secondary-foreground opacity-80"
+                  aria-hidden="true"
+                />
               </div>
-              <p className="text-secondary-foreground/80">glasses today</p>
-
-              {/* Progress bar */}
-              <div className="w-full bg-white/20 rounded-full h-3 mt-4">
-                <div
-                  className="bg-white/60 h-3 rounded-full transition-all duration-300"
-                  style={{ width: `${percentage}%` }}
-                ></div>
+              <div className="space-y-4">
+                <div>
+                  <span
+                    className="text-4xl font-bold text-secondary-foreground"
+                    aria-label="Glasses of water"
+                  >
+                    {waterCount}
+                  </span>
+                  <span className="text-xl text-secondary-foreground/70 ml-2">
+                    / {dailyGoal}
+                  </span>
+                </div>
+                <p className="text-secondary-foreground/80">glasses today</p>
+                {/* Progress bar */}
+                <div className={theme.progressBar} aria-label="Progress bar">
+                  <div
+                    className={theme.progressFill}
+                    style={{ width: `${percentage}%` }}
+                    aria-valuenow={percentage}
+                    aria-valuemin={0}
+                    aria-valuemax={100}
+                    role="progressbar"
+                  ></div>
+                </div>
+                <p className="text-sm text-secondary-foreground/70">
+                  {percentage.toFixed(0)}% of daily goal
+                </p>
               </div>
+            </CardContent>
+          </Card>
 
-              <p className="text-sm text-secondary-foreground/70">
-                {percentage.toFixed(0)}% of daily goal
-              </p>
-            </div>
-          </CardContent>
-        </Card>
+          {/* Controls */}
+          <div className="grid grid-cols-2 gap-4 mb-8">
+            <Button
+              onClick={handleRemoveGlass}
+              variant="outline"
+              size="lg"
+              className={theme.buttonOutline + " h-16"}
+              disabled={waterCount === 0}
+              aria-label="Remove glass"
+            >
+              <Minus className="h-6 w-6 mr-2" aria-hidden="true" />
+              Remove
+            </Button>
+            <Button
+              onClick={handleAddGlass}
+              size="lg"
+              className={theme.buttonPrimary + " h-16"}
+              aria-label="Add glass"
+            >
+              <Plus className="h-6 w-6 mr-2" aria-hidden="true" />
+              Add Glass
+            </Button>
+          </div>
 
-        {/* Controls */}
-        <div className="grid grid-cols-2 gap-4 mb-8">
-          <Button
-            onClick={handleRemoveGlass}
-            variant="outline"
-            size="lg"
-            className="h-16 border-primary/20 hover:bg-primary-soft"
-            disabled={waterCount === 0}
-          >
-            <Minus className="h-6 w-6 mr-2" />
-            Remove
-          </Button>
-          <Button
-            onClick={handleAddGlass}
-            size="lg"
-            className="h-16 bg-primary hover:bg-primary/90 shadow-soft"
-          >
-            <Plus className="h-6 w-6 mr-2" />
-            Add Glass
-          </Button>
+          {/* Save Button */}
+          <div className="mb-8">
+            <Button
+              onClick={handleSave}
+              size="lg"
+              className={`w-full bg-gradient-accent border-0 shadow-glow h-16 flex items-center justify-center gap-3`}
+              aria-label="Save Progress"
+            >
+              <Save
+                className="text-secondary-foreground opacity-80"
+                aria-hidden="true"
+              />
+              <span className="text-xl font-bold text-secondary-foreground">
+                Save Progress
+              </span>
+            </Button>
+          </div>
         </div>
-
-        {/* Save Button */}
-        <div className="mb-8">
-          <Button
-            onClick={handleSave}
-            size="lg"
-            className="w-full bg-gradient-accent border-0 shadow-glow h-16 flex items-center justify-center gap-3"
-          >
-            <Save className="text-secondary-foreground opacity-80" />
-            <span className="text-xl font-bold text-secondary-foreground">
-              Save Progress
-            </span>
-          </Button>
-        </div>
-        {/* Daily Tips */}
-        <Card className="bg-card shadow-soft">
-          <CardHeader>
-            <CardTitle className="text-lg flex items-center gap-2">
-              <Droplets className="h-5 w-5 text-primary" /> Hydration Tips
-            </CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">
-              • Start your day with a glass of water
-            </p>
-            <p className="text-sm text-muted-foreground">
-              • Keep a water bottle nearby at all times
-            </p>
-            <p className="text-sm text-muted-foreground">
-              • Drink water before, during, and after exercise
-            </p>
-            <p className="text-sm text-muted-foreground">
-              • Add lemon or cucumber for flavor variety
-            </p>
-          </CardContent>
-        </Card>
       </div>
     </div>
   );

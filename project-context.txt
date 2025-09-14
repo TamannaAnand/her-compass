@@ -1,0 +1,62 @@
+# Project Context: her-compass
+
+## Overview
+her-compass is a modern web application built with React, TypeScript, Vite, and Tailwind CSS. It is designed to help users track various aspects of their health and wellness, including cycles, meals, workouts, water intake, and journaling. The project integrates with Supabase for backend services and authentication.
+
+## Main Technologies
+- React (TypeScript)
+- Vite (build tool)
+- Tailwind CSS (styling)
+- Supabase (backend, auth)
+- Capacitor (mobile support)
+
+## Key Files & Structure
+- `index.html` — Main HTML entry point
+- `package.json` — Project dependencies and scripts
+- `vite.config.ts` — Vite configuration
+- `tailwind.config.ts` — Tailwind CSS configuration
+- `tsconfig*.json` — TypeScript configuration files
+- `public/` — Static assets (SVG, robots.txt)
+- `src/` — Main source code
+    - `App.tsx`, `main.tsx` — App entry points
+    - `App.css`, `index.css` — Global styles
+    - `api/` — API clients for auth, journal, meal, water, workout, Supabase utils
+    - `components/` — UI components
+        - `BottomNavigation.tsx`, `Dashboard.tsx`, etc. — Main feature components
+        - `auth/` — Login, Logout, Signup components
+        - `ui/` — Reusable UI primitives (accordion, button, card, dialog, etc.)
+        - `CycleTrackerComponents/` — Specialized components for cycle tracking
+    - `hooks/` — Custom React hooks (e.g., `use-mobile`, `use-toast`)
+    - `integrations/supabase/` — Supabase client and types
+    - `pages/` — Top-level pages (Index, NotFound)
+- `supabase/` — Supabase configuration
+
+## Features
+- **Cycle Tracking**: Track menstrual cycles, phases, patterns, and advanced options
+- **Meal Tracker**: Log meals and nutrition
+- **Workout Tracker**: Record workouts and fitness activities
+- **Water Tracker**: Monitor daily water intake
+- **Journal**: Personal journaling feature
+- **Authentication**: User login, signup, and logout via Supabase
+- **Responsive UI**: Mobile-friendly navigation and layouts
+- **Reusable UI Components**: Modular design for easy extension
+
+## Configuration & Tooling
+- **ESLint**: Linting via `eslint.config.js`
+- **PostCSS**: CSS processing via `postcss.config.js`
+- **Capacitor**: Mobile app support via `capacitor.config.ts`
+- **Supabase**: Backend and auth via `supabase/config.toml`
+
+## How to Run
+1. Install dependencies: `npm install` or `bun install`
+2. Start development server: `npm run dev` or `bun run dev`
+3. Build for production: `npm run build` or `bun run build`
+
+## Notes
+- All main features are modularized in `src/components/` and `src/api/`.
+- Supabase integration is handled in `src/api/supabaseClient.ts` and `src/integrations/supabase/`.
+- UI primitives are in `src/components/ui/` for easy reuse.
+- The project is designed for easy extension and mobile support.
+
+---
+This file provides a high-level summary of the project structure, technologies, and main features for any AI tool or developer to quickly understand the codebase.

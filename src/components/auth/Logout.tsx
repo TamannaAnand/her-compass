@@ -8,6 +8,7 @@ const Logout = ({ setActiveTab }) => {
     setActiveTab("login"); // Redirect to login tab
   };
 
+  // ...existing code...
   return (
     <div className="min-h-screen bg-gradient-soft p-4 pb-20">
       <div className="max-w-md mx-auto">
@@ -16,11 +17,12 @@ const Logout = ({ setActiveTab }) => {
         </div>
         <Card className="mb-8 bg-gradient-accent border-0 shadow-glow">
           <CardContent className="p-8 text-center">
-            Please select the Logout Button to Confirm
+            <span className="block mb-4">Please select the Logout Button to Confirm</span>
             <Button
               size="lg"
               className="mt-6 bg-primary hover:bg-primary/90 shadow-soft"
               onClick={handleLogout}
+              aria-label="Confirm Logout"
             >
               Confirm Logout
             </Button>
@@ -29,6 +31,7 @@ const Logout = ({ setActiveTab }) => {
       </div>
     </div>
   );
+  // ...existing code...
 };
 
 export default Logout;

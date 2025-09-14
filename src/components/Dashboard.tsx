@@ -1,5 +1,6 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useTheme } from "@/theme/useTheme";
 import {
   Droplets,
   Utensils,
@@ -14,6 +15,7 @@ import { fetchWorkoutsFromDb } from "@/api/workoutAPI";
 import { fetchEntriesFromDb } from "@/api/journalAPI";
 import { useEffect, useState } from "react";
 
+
 interface QuickStats {
   waterGlasses: number;
   waterGoal: number;
@@ -24,6 +26,7 @@ interface QuickStats {
 }
 
 const Dashboard = ({ setActiveTab }) => {
+  const theme = useTheme();
   const [waterGlasses, setWaterGlasses] = useState(0);
   const [waterGoal, setWaterGoal] = useState(8);
   const [mealsLogged, setMealsLogged] = useState(0);
@@ -81,8 +84,10 @@ const Dashboard = ({ setActiveTab }) => {
     journalEntries,
   };
 
+  // Cards for quick stats tracking
   const trackingCards = [
     {
+      id: "water",
       title: "Water Intake",
       icon: Droplets,
       value: `${stats.waterGlasses}/${stats.waterGoal}`,
@@ -91,6 +96,7 @@ const Dashboard = ({ setActiveTab }) => {
       bgGradient: "bg-gradient-accent",
     },
     {
+      id: "meals",
       title: "Meals",
       icon: Utensils,
       value: stats.mealsLogged.toString(),
@@ -99,6 +105,7 @@ const Dashboard = ({ setActiveTab }) => {
       bgGradient: "bg-gradient-soft",
     },
     {
+      id: "workout",
       title: "Workout",
       icon: Dumbbell,
       value: stats.workoutMinutes.toString(),
@@ -106,7 +113,8 @@ const Dashboard = ({ setActiveTab }) => {
       color: "text-primary-foreground",
       bgGradient: "bg-gradient-primary",
     },
-     {
+    {
+      id: "journal",
       title: "Journal",
       icon: BookHeart,
       value: stats.journalEntries.toString(),
@@ -115,6 +123,7 @@ const Dashboard = ({ setActiveTab }) => {
       bgGradient: "bg-gradient-soft",
     },
     {
+      id: "cycle",
       title: "Cycle",
       icon: Calendar,
       value: `Day ${stats.cycleDay}`,
@@ -134,22 +143,20 @@ const Dashboard = ({ setActiveTab }) => {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-soft p-4 pb-20">
-      <div className="max-w-md mx-auto">
+    <div className={theme.mainContainer}>
+      <div className={theme.innerContainer}>
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">
-            Good morning!
+          <h1 className={theme.sectionHeader}>
+            Welcome!
           </h1>
-          <p className="text-muted-foreground">
+          <p className={theme.sectionSubHeader}>
             Let's track your wellness journey
           </p>
-        </div>
-
         {/* Quick Add Actions */}
-        <div className="grid grid-cols-2 gap-3 mb-8">
+        <div className="grid grid-cols-2 gap-3 mb-8 mt-8">
           <Button
-            className="h-16 bg-primary hover:bg-primary/90 shadow-soft"
+            className={`h-16 ${theme.buttonPrimary}`}
             onClick={handleAddWater}
           >
             <div className="flex flex-col items-center gap-1">
@@ -159,7 +166,7 @@ const Dashboard = ({ setActiveTab }) => {
           </Button>
           <Button
             variant="secondary"
-            className="h-16 shadow-soft"
+            className={`h-16 ${theme.buttonOutline}`}
             onClick={handleJournalClick}
           >
             <div className="flex flex-col items-center gap-1">
@@ -168,17 +175,19 @@ const Dashboard = ({ setActiveTab }) => {
             </div>
           </Button>
         </div>
+        </div>
 
-        {/* Tracking Cards */}
-        <div className="space-y-4">
-          {trackingCards.map((card, index) => {
+        {/* Tracking Cards - Responsive Layout */}
+        <div className={theme.dashboardLayout} aria-label="Quick Stats">
+          {trackingCards.map((card) => {
             const Icon = card.icon;
             return (
               <Card
-                key={index}
-                className={`${card.bgGradient} border-0 shadow-soft overflow-hidden relative`}
+                key={card.id}
+                className={`${theme.dashboardCard} ${card.bgGradient} border-0 shadow-soft overflow-hidden relative`}
+                aria-label={card.title}
               >
-                <CardContent className="p-6">
+                <CardContent className={theme.cardContentBase}>
                   <div className="flex items-center justify-between">
                     <div className="space-y-1">
                       <p
@@ -194,7 +203,7 @@ const Dashboard = ({ setActiveTab }) => {
                       </p>
                     </div>
                     <div className={`${card.color} opacity-60`}>
-                      <Icon className="h-8 w-8" />
+                      <Icon className="h-8 w-8" aria-hidden="true" />
                     </div>
                   </div>
                 </CardContent>

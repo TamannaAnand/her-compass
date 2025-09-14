@@ -53,7 +53,8 @@ const Login = ({ setActiveTab }) => {
     setActiveTab("signup");
   }
 
- return (
+  // ...existing code...
+  return (
     <div className="p-4 pb-20">
       <div className="max-w-md mx-auto">
         <div className="text-center mb-8 pt-8">
@@ -68,32 +69,38 @@ const Login = ({ setActiveTab }) => {
         <Card className="mb-6 bg-gradient-accent border-0 shadow-glow">
           <CardContent className="p-8">
             <div className="space-y-4">
+              {/* Email Input */}
               <div className="relative">
-                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" aria-hidden="true" />
                 <input
                   type="email"
                   placeholder="Email"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-10 pr-4 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  aria-label="Email address"
+                  autoComplete="email"
                 />
               </div>
-              
+              {/* Password Input */}
               <div className="relative">
-                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" aria-hidden="true" />
                 <input
                   type={showPassword ? "text" : "password"}
                   placeholder="Password"
                   value={password}
                   onChange={(e) => setPassword(e.target.value)}
                   className="w-full pl-10 pr-12 py-3 bg-background/50 border border-border rounded-lg focus:outline-none focus:ring-2 focus:ring-primary/20 focus:border-primary transition-colors"
+                  aria-label="Password"
+                  autoComplete="current-password"
                 />
                 <button
                   type="button"
                   onClick={() => setShowPassword(!showPassword)}
                   className="absolute right-3 top-1/2 transform -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                  aria-label={showPassword ? "Hide password" : "Show password"}
                 >
-                  {showPassword ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                  {showPassword ? <EyeOff className="h-4 w-4" aria-hidden="true" /> : <Eye className="h-4 w-4" aria-hidden="true" />}
                 </button>
               </div>
 
@@ -102,6 +109,7 @@ const Login = ({ setActiveTab }) => {
                 size="lg"
                 className="w-full bg-primary hover:bg-primary/90 shadow-soft"
                 disabled={isLoading || !email || !password}
+                aria-label="Sign In"
               >
                 {isLoading ? 'Signing In...' : 'Sign In'}
               </Button>
@@ -122,8 +130,9 @@ const Login = ({ setActiveTab }) => {
               className="w-full bg-background/50 border-border hover:bg-background/70 shadow-soft"
               onClick={handleGoogleLogin}
               disabled={isLoading}
+              aria-label="Continue with Google"
             >
-              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24">
+              <svg className="mr-2 h-4 w-4" viewBox="0 0 24 24" aria-hidden="true">
                 <path
                   fill="currentColor"
                   d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
@@ -152,6 +161,7 @@ const Login = ({ setActiveTab }) => {
             <button
               onClick={onSwitchToSignup}
               className="text-primary hover:underline font-medium"
+              aria-label="Sign up"
             >
               Sign up
             </button>
@@ -160,6 +170,7 @@ const Login = ({ setActiveTab }) => {
       </div>
     </div>
   );
+  // ...existing code...
 };
 
 export default Login;

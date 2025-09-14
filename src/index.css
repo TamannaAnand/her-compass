@@ -115,4 +115,12 @@ All colors MUST be HSL.
   body {
     @apply bg-background text-foreground;
   }
+
+  /* Global gradient background utility */
+  .bg-gradient-app {
+    background-image: var(--gradient-primary), var(--gradient-soft), var(--gradient-accent);
+    background-blend-mode: lighten;
+    background-size: cover;
+    background-repeat: no-repeat;
+  }
 }

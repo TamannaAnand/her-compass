@@ -4,17 +4,18 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import Dashboard from "@/components/Dashboard";
-import BottomNavigation from "@/components/BottomNavigation";
+import Navigation from "@/components/Navigation";
 import WaterTracker from "@/components/WaterTracker";
 import MealTracker from "@/components/MealTracker";
 import WorkoutTracker from "@/components/WorkoutTracker";
-import CycleTracker from "@/components/PeriodTracker";
+import PeriodTracker from "@/components/PeriodTracker";
 import Journal from "@/components/Journal";
 import Logout from "@/components/auth/Logout";
 import Login from "@/components/auth/Login";
 import supabase from "@/api/supabaseClient";
 import { useEffect } from "react";
 import SignUp from "./components/auth/Signup";
+import Profile from "./components/Profile";
 
 
 const queryClient = new QueryClient();
@@ -76,10 +77,12 @@ const App = () => {
         return <MealTracker />;
       case "workout":
         return <WorkoutTracker />;
-      case "cycle":
-        return <CycleTracker />;
+      case "period":
+        return <PeriodTracker />;
       case "journal":
         return <Journal />;
+      case "profile":
+        return <Profile />;
       case "logout":
         return <Logout setActiveTab={setActiveTab} />;
       case "signup":
@@ -93,10 +96,10 @@ const App = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <TooltipProvider>
-        <div className="min-h-screen bg-background">
+        <div className="bg-background">
           {renderActiveTab()}
           {isLoggedIn && (
-            <BottomNavigation activeTab={activeTab} onTabChange={setActiveTab} />
+            <Navigation activeTab={activeTab} setActiveTab={setActiveTab} />
           )}
         </div>
         <Toaster />

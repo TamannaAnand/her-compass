@@ -1,30 +1,31 @@
-import React, { useState, useEffect } from 'react';
-import { Card, CardContent } from "@/components/ui/card";
-import { Waves, Heart, Moon, Sun } from "lucide-react";
-import BasicInputs from './ui/CycleTrackerComponents/BasicInputs';
-import AdvancedOptions from './ui/CycleTrackerComponents/AdvancedOptions';
-import CurrentDayDisplay from './ui/CycleTrackerComponents/CurrentDayDisplay';
-import PhaseDisplay from './ui/CycleTrackerComponents/PhaseDisplay';
-import PhasesOverview from './ui/CycleTrackerComponents/PhasesOverview';
-
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import {
+  Calendar,
+  Heart,
+  Moon,
+  Sun,
+  Waves,
+  Plus,
+  RotateCw,
+  Clock,
+} from "lucide-react";
+import { useTheme } from "@/theme/useTheme";
 
 const PeriodTracker = () => {
-  const [formData, setFormData] = useState({
-    lastPeriodDate: '',
+  const defaultFormData = {
+    lastPeriodDate: "",
     cycleLength: 28,
     periodDuration: 5,
-    lifeStage: '18-44',
-    pmsTiming: '4-7',
+    notes: "",
     previousCycles: [],
-    enableRegularity: false,
-    cycleRegularity: 'regular',
-    enableFlowTracking: false,
-    enableLutealPhase: false,
-    lutealPhase: 14,
-  });
+  };
 
+  const [formData, setFormData] = useState(defaultFormData);
   const [currentDay, setCurrentDay] = useState(1);
-  const [isFormValid, setIsFormValid] = useState(false);
+  const [showCycleCard, setShowCycleCard] = useState(false);
 
   const phases = [
     {
@@ -33,23 +34,23 @@ const PeriodTracker = () => {
       days: "1-5",
       description: "Your period. Rest and be gentle with yourself.",
       color: "text-rose-600",
-      bgColor: "bg-rose-50"
+      bgColor: "bg-rose-50",
     },
     {
-      name: "Follicular", 
+      name: "Follicular",
       icon: Sun,
       days: "6-13",
       description: "Energy is building. Great time to start new projects.",
       color: "text-orange-600",
-      bgColor: "bg-orange-50"
+      bgColor: "bg-orange-50",
     },
     {
       name: "Ovulation",
       icon: Heart,
-      days: "14-16", 
+      days: "14-16",
       description: "Peak energy and fertility. You might feel most social.",
       color: "text-pink-600",
-      bgColor: "bg-pink-50"
+      bgColor: "bg-pink-50",
     },
     {
       name: "Luteal",
@@ -57,9 +58,19 @@ const PeriodTracker = () => {
       days: "17-28",
       description: "Energy may dip. Focus on self-care and completion.",
       color: "text-purple-600",
-      bgColor: "bg-purple-50"
-    }
+      bgColor: "bg-purple-50",
+    },
   ];
+
+  const calculateCurrentDay = () => {
+    if (!formData.lastPeriodDate) return 1;
+    const startDate = new Date(formData.lastPeriodDate);
+    const today = new Date();
+    const diffTime = Math.abs(today.getTime() - startDate.getTime());
+    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+    const dayInCycle = ((diffDays - 1) % formData.cycleLength) + 1;
+    return dayInCycle;
+  };
 
   const getCurrentPhase = (day) => {
     if (day >= 1 && day <= 5) return "menstrual";
@@ -68,78 +79,184 @@ const PeriodTracker = () => {
     return "luteal";
   };
 
- const calculateCurrentDay = () => {
-    if (!formData.lastPeriodDate) return 1;
-    
-    const startDate = new Date(formData.lastPeriodDate);
-    const today = new Date();
-    const diffTime = Math.abs(today.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    
-    const dayInCycle = ((diffDays - 1) % formData.cycleLength) + 1;
-    return dayInCycle;
-  };
-
-  const handleCalculatePredictions = () => {
+  const handleCalculate = () => {
     if (formData.lastPeriodDate) {
       const calculatedDay = calculateCurrentDay();
       setCurrentDay(calculatedDay);
-      setIsFormValid(true);
+      setShowCycleCard(true);
     }
   };
 
   const updateFormData = (updates) => {
-    setFormData(prev => ({ ...prev, ...updates }));
+    setFormData((prev) => ({ ...prev, ...updates }));
   };
 
-  useEffect(() => {
-    setIsFormValid(!!formData.lastPeriodDate);
-  }, [formData.lastPeriodDate]);
-
   const phase = getCurrentPhase(currentDay);
-  const currentPhaseData = phases.find(p => p.name.toLowerCase() === phase);
+  const currentPhaseData = phases.find((p) => p.name.toLowerCase() === phase);
 
+  // UI Render
+  const theme = useTheme();
   return (
-    <div className="min-h-screen bg-gradient-to-br from-rose-50 to-pink-50 p-4 pb-20">
-      <div className="max-w-md mx-auto">
+    <div className={theme.mainContainer}>
+      <div className={theme.innerContainer}>
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-3xl font-bold text-rose-800 mb-2">Cycle Tracker</h1>
-          <p className="text-rose-600">Understanding your natural rhythm</p>
+          <h1 className={theme.sectionHeader}>Period Tracker</h1>
+          <p className={`${theme.sectionSubHeader} pb-3`}>
+            Track your menstrual cycle and phases
+          </p>
+          {/* Input Card */}
+          <Card className={`${theme.cardBase} ${theme.cardAccent}`}>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2 text-lg">
+                Personalize Your Tracking
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="lastPeriodDate"
+                  className="text-sm font-medium text-muted-foreground flex items-center gap-2 my-1"
+                >
+                  <Calendar className="h-4 w-4 text-primary" />
+                  Last Period Start Date
+                </label>
+                <Input
+                  id="lastPeriodDate"
+                  type="date"
+                  value={formData.lastPeriodDate}
+                  onChange={(e) =>
+                    updateFormData({ lastPeriodDate: e.target.value })
+                  }
+                  className={theme.inputBase}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                <label
+                  htmlFor="lastPeriodDate"
+                  className="text-sm font-medium text-muted-foreground flex items-center gap-2 my-1"
+                >
+                  <RotateCw className="h-4 w-4 text-primary" />
+                  Cycle Details
+                </label>
+                <Input
+                  type="number"
+                  min={21}
+                  max={35}
+                  value={formData.cycleLength}
+                  onChange={(e) =>
+                    updateFormData({
+                      cycleLength: parseInt(e.target.value) || 28,
+                    })
+                  }
+                  className={theme.inputBase}
+                />
+              </div>
+              <div className="flex flex-col gap-1">
+                  <label
+                    htmlFor="periodDuration"
+                    className="text-sm font-medium text-muted-foreground flex items-center gap-2 my-1"
+                  >
+                    <Clock className="h-4 w-4 text-primary" />
+                    Period Duration
+                  </label>
+                  <Input
+                    type="number"
+                    min={1}
+                    max={10}
+                    value={formData.periodDuration}
+                    onChange={(e) =>
+                      updateFormData({
+                        periodDuration: parseInt(e.target.value) || 5,
+                      })
+                    }
+                    className={theme.inputBase}
+                  />
+              </div>
+              <Button
+                onClick={handleCalculate}
+                className={`w-full h-12 mt-4 ${theme.buttonPrimary}`}
+                disabled={!formData.lastPeriodDate}
+              >
+                <Plus className="h-4 w-4 mr-2" />
+                Update My Cycle
+              </Button>
+            </CardContent>
+          </Card>
         </div>
 
-        {/* Basic Inputs Section */}
-        <BasicInputs 
-          formData={formData}
-          updateFormData={updateFormData}
-          onCalculate={handleCalculatePredictions}
-          isFormValid={isFormValid}
-        />
-
-        {/* Advanced Options */}
-        <AdvancedOptions 
-          formData={formData}
-          updateFormData={updateFormData}
-        />
-
-        {/* Current Day Display */}
-        {isFormValid && (
-          <CurrentDayDisplay 
-            currentDay={currentDay}
-            cycleLength={formData.cycleLength}
-          />
+        {/* Current Day & Phase */}
+        {showCycleCard && (
+          <Card className={`mb-8 bg-gradient-accent border-0 shadow-glow`}>
+            <CardContent className="p-8 text-center">
+              <div className="flex flex-col items-center gap-2">
+                <p className="text-lg font-medium text-secondary-foreground">
+                  Current Day
+                </p>
+                <p className="text-5xl font-bold text-secondary-foreground">
+                  {currentDay}
+                </p>
+                <p className="text-sm text-secondary-foreground/80">
+                  of {formData.cycleLength} day cycle
+                </p>
+              </div>
+              {currentPhaseData && (
+                <div className="mt-6">
+                  <div
+                    className={`flex items-center justify-center gap-2 ${currentPhaseData.color}`}
+                  >
+                    {currentPhaseData.icon && (
+                      <currentPhaseData.icon className="h-6 w-6" />
+                    )}
+                    <span className="font-semibold text-lg">
+                      {currentPhaseData.name} Phase
+                    </span>
+                  </div>
+                  <p className="text-sm mt-2 text-secondary-foreground/80">
+                    {currentPhaseData.description}
+                  </p>
+                </div>
+              )}
+            </CardContent>
+          </Card>
         )}
 
-        {/* Current Phase Display */}
-        {isFormValid && currentPhaseData && (
-          <PhaseDisplay phaseData={currentPhaseData} />
-        )}
-
-        {/* All Phases Overview */}
-        <PhasesOverview 
-          phases={phases}
-          currentPhase={isFormValid ? phase : null}
-        />
+        {/* Phases Overview */}
+        <Card className={`mb-8 ${theme.cardBase} ${theme.cardSoft}`}>
+          <CardHeader>
+            <CardTitle className="text-lg">Cycle Phases</CardTitle>
+          </CardHeader>
+          <CardContent className="space-y-4">
+            {phases.map((p, idx) => {
+              const Icon = p.icon;
+              const isActive =
+                currentPhaseData && p.name === currentPhaseData.name;
+              return (
+                <Card
+                  key={idx}
+                  className={`${p.bgColor} ${
+                    isActive ? "border-rose-400 border-2" : "border-none"
+                  } shadow-sm`}
+                >
+                  <CardContent className="flex items-center gap-4 p-4">
+                    <Icon className={`h-6 w-6 ${p.color}`} />
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between">
+                        <h4 className={`font-medium ${p.color}`}>{p.name}</h4>
+                        <span className={`text-xs ${p.color} opacity-75`}>
+                          Days {p.days}
+                        </span>
+                      </div>
+                      <p className="text-sm mt-1 text-muted-foreground">
+                        {p.description}
+                      </p>
+                    </div>
+                  </CardContent>
+                </Card>
+              );
+            })}
+          </CardContent>
+        </Card>
       </div>
     </div>
   );

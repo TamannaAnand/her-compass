@@ -1,14 +1,15 @@
-import { useState, useEffect } from "react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Button } from "@/components/ui/button";
-import { Textarea } from "@/components/ui/textarea";
-import { BookHeart, Plus, Edit3, TrashIcon, PencilIcon } from "lucide-react";
 import {
   fetchEntriesFromDb,
   addEntryToDb,
   deleteEntryFromDb,
   updateEntryInDb,
 } from "@/api/journalAPI";
+import { useState, useEffect } from "react";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Textarea } from "@/components/ui/textarea";
+import { BookHeart, Plus, Edit3, TrashIcon, PencilIcon } from "lucide-react";
+import { useTheme } from "@/theme/useTheme";
 
 interface JournalEntry {
   id: string;
@@ -60,70 +61,86 @@ const Journal = () => {
     handleDeleteEntry(entry.id); // Remove old entry, will be replaced on save
   };
 
+  // ...existing code...
+  const theme = useTheme();
   return (
-    <div className="min-h-screen bg-gradient-soft p-4 pb-20">
-      <div className="max-w-md mx-auto">
+    <div className={theme.mainContainer}>
+      <div className={theme.innerContainer}>
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <h1 className="text-3xl font-bold text-foreground mb-2">Journal</h1>
-          <p className="text-muted-foreground">Capture your thoughts and feelings</p>
+          <h1 className={theme.sectionHeader}>Journal</h1>
+          <p className={`${theme.sectionSubHeader} pb-3`}>
+            Capture your thoughts and feelings
+          </p>
+          {/* Add New Entry Button */}
+          {!isWriting && (
+            <Button
+              onClick={() => setIsWriting(true)}
+              className={`w-full mb-6 h-16 ${theme.buttonPrimary}`}
+              aria-label="Write New Entry"
+            >
+              <Plus className="h-5 w-5 mr-2" aria-hidden="true" />
+              Write New Entry
+            </Button>
+          )}
+
+          {/* New Entry Form */}
+          {isWriting && (
+            <Card className={`${theme.cardBase} ${theme.cardAccent} mb-6`}>
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2 text-lg">
+                  <Edit3 className="h-5 w-5 text-primary" aria-hidden="true" />
+                  New Entry
+                </CardTitle>
+              </CardHeader>
+              <CardContent className={theme.cardContentBase + " space-y-4"}>
+                <Textarea
+                  placeholder="What's on your mind today?"
+                  value={newEntry}
+                  onChange={(e) => setNewEntry(e.target.value)}
+                  className="min-h-[120px] resize-none"
+                  autoFocus
+                  aria-label="Journal entry text"
+                />
+                <div className="flex gap-2">
+                  <Button
+                    onClick={handleAddEntry}
+                    className={`flex-1 ${theme.buttonPrimary}`}
+                    aria-label="Save Entry"
+                  >
+                    Save Entry
+                  </Button>
+                  <Button
+                    variant="outline"
+                    onClick={() => {
+                      setIsWriting(false);
+                      setNewEntry("");
+                    }}
+                    className={`flex-1 ${theme.buttonOutline}`}
+                    aria-label="Cancel Entry"
+                  >
+                    Cancel
+                  </Button>
+                </div>
+              </CardContent>
+            </Card>
+          )}
         </div>
 
-        {/* Add New Entry Button */}
-        {!isWriting && (
-          <Button
-            onClick={() => setIsWriting(true)}
-            className="w-full mb-6 h-16 bg-primary hover:bg-primary/90 shadow-soft"
-          >
-            <Plus className="h-5 w-5 mr-2" />
-            Write New Entry
-          </Button>
-        )}
-
-        {/* New Entry Form */}
-        {isWriting && (
-          <Card className="mb-6 bg-card shadow-glow">
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2 text-lg">
-                <Edit3 className="h-5 w-5 text-primary" />
-                New Entry
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Textarea
-                placeholder="What's on your mind today?"
-                value={newEntry}
-                onChange={(e) => setNewEntry(e.target.value)}
-                className="min-h-[120px] resize-none"
-                autoFocus
-              />
-              <div className="flex gap-2">
-                <Button onClick={handleAddEntry} className="flex-1">
-                  Save Entry
-                </Button>
-                <Button
-                  variant="outline"
-                  onClick={() => {
-                    setIsWriting(false);
-                    setNewEntry("");
-                  }}
-                  className="flex-1"
-                >
-                  Cancel
-                </Button>
-              </div>
-            </CardContent>
-          </Card>
-        )}
-
         {/* Journal Entries */}
-        <div className="space-y-4">
+        <div className="space-y-4 flex-1" aria-label="Journal Entries">
           {entries.map((entry) => (
-            <Card key={entry.id} className="bg-card shadow-soft">
-              <CardContent className="p-6">
+            <Card
+              key={entry.id}
+              className={`${theme.cardBase} ${theme.cardSoft}`}
+            >
+              <CardContent className={theme.cardContentBase}>
                 <div className="flex items-start justify-between mb-3">
                   <div className="flex items-center gap-2">
-                    <BookHeart className="h-4 w-4 text-primary" />
+                    <BookHeart
+                      className="h-4 w-4 text-primary"
+                      aria-hidden="true"
+                    />
                     <span className="text-sm font-medium text-primary">
                       {new Date(entry.time).toLocaleDateString()}
                     </span>
@@ -139,15 +156,23 @@ const Journal = () => {
                       variant="ghost"
                       size="icon"
                       onClick={() => handleDeleteEntry(entry.id)}
+                      aria-label={`Delete entry`}
                     >
-                      <TrashIcon className="h-4 w-4 text-muted-foreground hover:text-destructive" />
+                      <TrashIcon
+                        className="h-4 w-4 text-muted-foreground hover:text-destructive"
+                        aria-hidden="true"
+                      />
                     </Button>
                     <Button
                       variant="ghost"
                       size="icon"
                       onClick={() => handleEditEntry(entry)}
+                      aria-label={`Edit entry`}
                     >
-                     <PencilIcon className="h-4 w-4 text-muted-foreground hover:text-primary" /> 
+                      <PencilIcon
+                        className="h-4 w-4 text-muted-foreground hover:text-primary"
+                        aria-hidden="true"
+                      />
                     </Button>
                   </div>
                 </div>
@@ -159,8 +184,11 @@ const Journal = () => {
 
         {/* Empty State */}
         {entries.length === 0 && !isWriting && (
-          <div className="text-center py-12">
-            <BookHeart className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50" />
+          <div className="text-center py-12" aria-label="No entries yet">
+            <BookHeart
+              className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50"
+              aria-hidden="true"
+            />
             <p className="text-muted-foreground text-lg mb-2">No entries yet</p>
             <p className="text-muted-foreground text-sm">
               Start writing to capture your thoughts
@@ -170,6 +198,7 @@ const Journal = () => {
       </div>
     </div>
   );
+  // ...existing code...
 };
 
 export default Journal;
