@@ -22,12 +22,12 @@ const SignUp = ({ setActiveTab }) => {
   const handleGoogleSignup = async () => {
     setIsLoading(true);
     setError('');
-    
+
     try {
       const { data, error } = await supabase.auth.signInWithOAuth({
         provider: "google",
         options: {
-          redirectTo: `${window.location.origin}/dashboard`,
+          redirectTo: `${import.meta.env.VITE_REDIRECT_URL}/dashboard`,
         },
       });
       
@@ -39,9 +39,7 @@ const SignUp = ({ setActiveTab }) => {
       // The redirect will handle the completion
       
     } catch (error) {
-      console.error('Google signup error:', error);
-      setError('An unexpected error occurred with Google signup');
-      setIsLoading(false);
+      console.error("Unexpected error during Google signup:", error);
     }
   };
 
@@ -116,7 +114,6 @@ const SignUp = ({ setActiveTab }) => {
     }
   };
 
-  // ...existing code...
   return (
     <div className="p-4 pb-20">
       <div className="max-w-md mx-auto">
@@ -286,7 +283,6 @@ const SignUp = ({ setActiveTab }) => {
       </div>
     </div>
   );
-  // ...existing code...
 };
 
 export default SignUp;
