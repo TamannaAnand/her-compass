@@ -10,6 +10,7 @@ const menuItems = [
   { label: "Workout", tab: "workout" },
   { label: "Journal", tab: "journal" },
   { label: "Profile", tab: "profile" },
+  { label: "Logout", tab: "logout" }
 ];
 
 export default function MobileMenu({ setActiveTab }) {

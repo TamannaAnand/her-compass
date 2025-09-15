@@ -10,8 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { BookHeart, Plus, Edit3, TrashIcon, PencilIcon } from "lucide-react";
 import { useTheme } from "@/theme/useTheme";
-import Archive from "./Archive";
-import { DropdownMenu } from "./ui/dropdown-menu";
+import { useToast } from "@/hooks/use-toast";
+
 
 interface JournalEntry {
   id: string;
@@ -23,6 +23,7 @@ const Journal = () => {
   const [entries, setEntries] = useState<JournalEntry[]>([]);
   const [newEntry, setNewEntry] = useState("");
   const [isWriting, setIsWriting] = useState(false);
+  const { toast } = useToast();
 
   // Fetch journal entries on mount
   useEffect(() => {
@@ -46,6 +47,7 @@ const Journal = () => {
       if (data) setEntries(data);
       setNewEntry("");
       setIsWriting(false);
+      toast({ title: "Success!", description: "Your journal entry was added." });
     }
   };
 
@@ -54,6 +56,7 @@ const Journal = () => {
     await deleteEntryFromDb(entryId);
     const data = await fetchEntriesFromDb();
     if (data) setEntries(data);
+    toast({ title: "Success!", description: "Your journal entry was deleted." });
   };
 
   // Edit entry (for simplicity, just pre-fill the new entry form)

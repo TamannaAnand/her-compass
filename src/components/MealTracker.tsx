@@ -20,6 +20,7 @@ import {
   fetchMealsFromDb,
 } from "@/api/mealAPI";
 import { useEffect } from "react";
+import { useToast } from "@/hooks/use-toast";
 
 interface Meal {
   id: string;
@@ -32,6 +33,7 @@ const MealTracker = () => {
   const [meals, setMeals] = useState<Meal[]>([]);
   const [newMeal, setNewMeal] = useState("");
   const [selectedType, setSelectedType] = useState<Meal["type"]>("breakfast");
+  const { toast } = useToast();
 
   // Meal types for selection
   const mealTypes = [
@@ -62,6 +64,7 @@ const MealTracker = () => {
       const data = await fetchMealsFromDb();
       if (data) setMeals(data);
       setNewMeal("");
+      toast({ title: "Success!", description: "Your meal was added." });
     }
   };
 
@@ -169,6 +172,7 @@ const MealTracker = () => {
                                   deleteMealFromDb(meal.id).then(async () => {
                                     const data = await fetchMealsFromDb();
                                     if (data) setMeals(data);
+                                    toast({ title: "Success!", description: "Your meal was deleted."})
                                   })
                                 }
                               >
@@ -192,6 +196,7 @@ const MealTracker = () => {
                                     }).then(async () => {
                                       const data = await fetchMealsFromDb();
                                       if (data) setMeals(data);
+                                      toast({ title: "Success!", description: "Your meal was updated." });
                                     });
                                   }
                                 }}

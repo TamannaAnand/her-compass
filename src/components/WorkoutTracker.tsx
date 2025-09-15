@@ -5,6 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Dumbbell, Plus, Play, Pause, RotateCcw, Timer, TrashIcon, PencilIcon } from "lucide-react";
 import { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb } from "@/api/workoutAPI";
 import { useTheme } from "@/theme/useTheme";
+import { useToast } from "@/hooks/use-toast";
 
 interface Workout {
   id: string;
@@ -21,6 +22,7 @@ const WorkoutTracker = () => {
   const [timerSeconds, setTimerSeconds] = useState(0);
   const [workoutName, setWorkoutName] = useState("");
   const [workoutType, setWorkoutType] = useState("Cardio");
+  const { toast } = useToast();
 
   // Workout types for selection
   const workoutTypes = ["Cardio", "Strength", "Flexibility", "HIIT", "Yoga", "Pilates"];
@@ -70,6 +72,7 @@ const WorkoutTracker = () => {
     };
 
     await addWorkoutToDb(newWorkout);
+    toast({ title: "Success!", description: "Your workout was added." });
     await fetchWorkouts();
 
     setWorkoutName("");
@@ -78,6 +81,7 @@ const WorkoutTracker = () => {
 
   const handleDeleteWorkout = async (workoutId: string) => {
     await deleteWorkoutFromDb(workoutId);
+    toast({ title: "Success!", description: "Your workout was deleted." });
     await fetchWorkouts();
   };
 

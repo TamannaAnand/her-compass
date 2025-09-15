@@ -14,6 +14,7 @@ import {
 } from "lucide-react";
 import { useTheme } from "@/theme/useTheme";
 import { addPeriodToDb, calculateCurrentDay } from "@/api/periodAPI";
+import { useToast } from "@/hooks/use-toast";
 
 
 const PeriodTracker = () => {
@@ -28,6 +29,7 @@ const PeriodTracker = () => {
   const [formData, setFormData] = useState(defaultFormData);
   const [currentDay, setCurrentDay] = useState(new Date().getDate());
   const [showCycleCard, setShowCycleCard] = useState(false);
+  const { toast } = useToast();
 
   const phases = [
     {
@@ -91,6 +93,7 @@ const PeriodTracker = () => {
       date: now.toISOString().split("T")[0],
     };
     addPeriodToDb(period);
+    toast({ title: "Success!", description: "Your cycle data was saved." });
   }
 
   const updateFormData = (updates) => {

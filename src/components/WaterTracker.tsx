@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
+import { useToast } from "@/hooks/use-toast";
 import { Droplets, Plus, Minus, Save } from "lucide-react";
 import {
   fetchWaterFromDb,
@@ -15,6 +16,7 @@ const WaterTracker = () => {
   const [waterCount, setWaterCount] = useState(0);
   const [waterEntryId, setWaterEntryId] = useState(null); // track most recent DB row
   const percentage = Math.min((waterCount / dailyGoal) * 100, 100);
+  const { toast } = useToast();
 
   // Fetch most recent water entry on mount
   useEffect(() => {
@@ -44,12 +46,14 @@ const WaterTracker = () => {
   const handleSave = async () => {
     if (waterEntryId) {
       await updateWaterInDb(waterEntryId, { count: waterCount });
+      toast({ title: "Success!", description: "Your water intake was updated." });
     } else {
       const newEntry = await addWaterToDb({
         date: new Date().toISOString(),
         count: waterCount,
       });
       if (newEntry && newEntry[0]?.id) setWaterEntryId(newEntry[0].id);
+      toast({ title: "Success!", description: "Your water intake was saved." });
     }
   };
 
