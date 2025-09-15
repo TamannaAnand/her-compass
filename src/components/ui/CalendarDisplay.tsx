@@ -32,14 +32,14 @@ const list: AccordionProps[] = [
 const CalendarDisplay = () => {
   return (
     <div className="w-full">
-  {/* <Accordion type="single">
+  <Accordion type="single">
         {list.map((item) => (
           <AccordionItem value={item.id}>
             <AccordionTrigger> {item.title}</AccordionTrigger>
             <AccordionContent>{item.description}</AccordionContent>
           </AccordionItem>
         ))}
-      </Accordion> */}
+      </Accordion>
     </div>
   );
 };

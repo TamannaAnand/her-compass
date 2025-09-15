@@ -234,8 +234,6 @@ const Dashboard = ({ setActiveTab }) => {
             onSelect={setSelectedDate}
             mode="single"
           />
-        </div>
-        <div className="flex">
           <CalendarDisplay />
         </div>
       </div>
