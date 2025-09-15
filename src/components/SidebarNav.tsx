@@ -1,6 +1,6 @@
 import React from "react";
 import { Button } from "@/components/ui/button";
-import { User, Home, Calendar, Utensils, Droplets, Dumbbell, BookHeart } from "lucide-react";
+import { User, Home, Calendar, Utensils, Droplets, Dumbbell, BookHeart, LogOutIcon } from "lucide-react";
 
 const navItems = [
   { label: "Dashboard", tab: "dashboard", icon: Home },
@@ -10,11 +10,12 @@ const navItems = [
   { label: "Workout", tab: "workout", icon: Dumbbell },
   { label: "Journal", tab: "journal", icon: BookHeart },
   { label: "Profile", tab: "profile", icon: User },
+  { label: "Logout", tab: "logout", icon: LogOutIcon },
 ];
 
 export default function SidebarNav({ setActiveTab, activeTab }) {
   return (
-    <aside className="fixed top-0 left-0 h-screen w-64 bg-sidebar-border bg-sidebar-accent shadow-xl flex flex-col gap-2 p-6 z-40">
+    <aside className="fixed top-0 left-0 h-screen w-64 bg-sidebar-accent shadow-xl flex flex-col gap-2 p-6 z-40">
       <div className="mb-8 text-2xl font-bold text-primary">Her Compass</div>
       {navItems.map((item) => {
         const Icon = item.icon;

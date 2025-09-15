@@ -13,6 +13,8 @@ import {
   Clock,
 } from "lucide-react";
 import { useTheme } from "@/theme/useTheme";
+import { addPeriodToDb, calculateCurrentDay } from "@/api/periodAPI";
+
 
 const PeriodTracker = () => {
   const defaultFormData = {
@@ -24,7 +26,7 @@ const PeriodTracker = () => {
   };
 
   const [formData, setFormData] = useState(defaultFormData);
-  const [currentDay, setCurrentDay] = useState(1);
+  const [currentDay, setCurrentDay] = useState(new Date().getDate());
   const [showCycleCard, setShowCycleCard] = useState(false);
 
   const phases = [
@@ -62,15 +64,7 @@ const PeriodTracker = () => {
     },
   ];
 
-  const calculateCurrentDay = () => {
-    if (!formData.lastPeriodDate) return 1;
-    const startDate = new Date(formData.lastPeriodDate);
-    const today = new Date();
-    const diffTime = Math.abs(today.getTime() - startDate.getTime());
-    const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
-    const dayInCycle = ((diffDays - 1) % formData.cycleLength) + 1;
-    return dayInCycle;
-  };
+
 
   const getCurrentPhase = (day) => {
     if (day >= 1 && day <= 5) return "menstrual";
@@ -81,11 +75,23 @@ const PeriodTracker = () => {
 
   const handleCalculate = () => {
     if (formData.lastPeriodDate) {
-      const calculatedDay = calculateCurrentDay();
+      const calculatedDay = calculateCurrentDay(formData.lastPeriodDate, formData.cycleLength);
       setCurrentDay(calculatedDay);
       setShowCycleCard(true);
     }
   };
+
+  const handleAddPeriodData = () => {
+    const now = new Date();
+    const period = {
+      cycle_phase: getCurrentPhase(currentDay),
+      cycle_start_date: formData.lastPeriodDate,
+      cycle_length: formData.cycleLength,
+      cycle_duration: formData.periodDuration,
+      date: now.toISOString().split("T")[0],
+    };
+    addPeriodToDb(period);
+  }
 
   const updateFormData = (updates) => {
     setFormData((prev) => ({ ...prev, ...updates }));
@@ -153,28 +159,31 @@ const PeriodTracker = () => {
                 />
               </div>
               <div className="flex flex-col gap-1">
-                  <label
-                    htmlFor="periodDuration"
-                    className="text-sm font-medium text-muted-foreground flex items-center gap-2 my-1"
-                  >
-                    <Clock className="h-4 w-4 text-primary" />
-                    Period Duration
-                  </label>
-                  <Input
-                    type="number"
-                    min={1}
-                    max={10}
-                    value={formData.periodDuration}
-                    onChange={(e) =>
-                      updateFormData({
-                        periodDuration: parseInt(e.target.value) || 5,
-                      })
-                    }
-                    className={theme.inputBase}
-                  />
+                <label
+                  htmlFor="periodDuration"
+                  className="text-sm font-medium text-muted-foreground flex items-center gap-2 my-1"
+                >
+                  <Clock className="h-4 w-4 text-primary" />
+                  Period Duration
+                </label>
+                <Input
+                  type="number"
+                  min={1}
+                  max={10}
+                  value={formData.periodDuration}
+                  onChange={(e) =>
+                    updateFormData({
+                      periodDuration: parseInt(e.target.value) || 5,
+                    })
+                  }
+                  className={theme.inputBase}
+                />
               </div>
               <Button
-                onClick={handleCalculate}
+                onClick={() => {
+                  handleCalculate();
+                  handleAddPeriodData();
+                }}
                 className={`w-full h-12 mt-4 ${theme.buttonPrimary}`}
                 disabled={!formData.lastPeriodDate}
               >

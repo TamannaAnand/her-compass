@@ -13,6 +13,7 @@ import { fetchWaterFromDb } from "@/api/waterAPI";
 import { fetchMealsFromDb } from "@/api/mealAPI";
 import { fetchWorkoutsFromDb } from "@/api/workoutAPI";
 import { fetchEntriesFromDb } from "@/api/journalAPI";
+import { fetchPeriodsFromDb, calculateCurrentDay } from "@/api/periodAPI";
 import { useEffect, useState } from "react";
 
 
@@ -32,6 +33,7 @@ const Dashboard = ({ setActiveTab }) => {
   const [mealsLogged, setMealsLogged] = useState(0);
   const [workoutMinutes, setWorkoutMinutes] = useState(0);
   const [journalEntries, setJournalEntries] = useState(0);
+  const [cycleDay, setCycleDay] = useState<number | undefined>();
 
   useEffect(() => {
   const fetchStats = async () => {
@@ -69,6 +71,16 @@ const Dashboard = ({ setActiveTab }) => {
       );
       setJournalEntries(todayEntries.length);
     }
+
+    // Periods
+    const periodsData = await fetchPeriodsFromDb();
+    if (periodsData && periodsData.length > 0) {
+      const mostRecentPeriod = periodsData[0]; // Assuming sorted by most recent
+      const day = calculateCurrentDay(mostRecentPeriod.cycle_start_date, mostRecentPeriod.cycle_length);
+      setCycleDay(day);
+    } else {
+      setCycleDay(undefined);
+    }
   };
 
   fetchStats();
@@ -80,7 +92,7 @@ const Dashboard = ({ setActiveTab }) => {
     waterGoal,
     mealsLogged,
     workoutMinutes,
-    cycleDay: 0,
+    cycleDay: cycleDay ?? 0,
     journalEntries,
   };
 
@@ -124,9 +136,9 @@ const Dashboard = ({ setActiveTab }) => {
     },
     {
       id: "cycle",
-      title: "Cycle",
+      title: "Menstrual Cycle",
       icon: Calendar,
-      value: `Day ${stats.cycleDay}`,
+      value: stats.cycleDay ? `Day ${stats.cycleDay}` : "N/A",
       subtitle: "of cycle",
       color: "text-secondary-foreground",
       bgGradient: "bg-gradient-accent",

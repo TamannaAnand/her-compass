@@ -10,6 +10,8 @@ import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { BookHeart, Plus, Edit3, TrashIcon, PencilIcon } from "lucide-react";
 import { useTheme } from "@/theme/useTheme";
+import Archive from "./Archive";
+import { DropdownMenu } from "./ui/dropdown-menu";
 
 interface JournalEntry {
   id: string;
@@ -64,10 +66,10 @@ const Journal = () => {
   // ...existing code...
   const theme = useTheme();
   return (
-    <div className={theme.mainContainer}>
-      <div className={theme.innerContainer}>
+    <div className={`${theme.mainContainer}`}>
+      <div className={`${theme.innerContainer}`}>
         {/* Header */}
-        <div className="text-center mb-8 pt-8">
+        <div className={`${isWriting ? "text-center mb-8 pt-8 flex-1" : "text-center mb-8 pt-8"}`}>
           <h1 className={theme.sectionHeader}>Journal</h1>
           <p className={`${theme.sectionSubHeader} pb-3`}>
             Capture your thoughts and feelings
@@ -127,74 +129,76 @@ const Journal = () => {
           )}
         </div>
 
-        {/* Journal Entries */}
-        <div className="space-y-4 flex-1" aria-label="Journal Entries">
-          {entries.map((entry) => (
-            <Card
-              key={entry.id}
-              className={`${theme.cardBase} ${theme.cardSoft}`}
-            >
-              <CardContent className={theme.cardContentBase}>
-                <div className="flex items-start justify-between mb-3">
-                  <div className="flex items-center gap-2">
-                    <BookHeart
-                      className="h-4 w-4 text-primary"
-                      aria-hidden="true"
-                    />
-                    <span className="text-sm font-medium text-primary">
-                      {new Date(entry.time).toLocaleDateString()}
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    <span className="text-xs text-muted-foreground">
-                      {new Date(entry.time).toLocaleTimeString([], {
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </span>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleDeleteEntry(entry.id)}
-                      aria-label={`Delete entry`}
-                    >
-                      <TrashIcon
-                        className="h-4 w-4 text-muted-foreground hover:text-destructive"
-                        aria-hidden="true"
-                      />
-                    </Button>
-                    <Button
-                      variant="ghost"
-                      size="icon"
-                      onClick={() => handleEditEntry(entry)}
-                      aria-label={`Edit entry`}
-                    >
-                      <PencilIcon
-                        className="h-4 w-4 text-muted-foreground hover:text-primary"
-                        aria-hidden="true"
-                      />
-                    </Button>
-                  </div>
-                </div>
-                <p className="text-foreground leading-relaxed">{entry.text}</p>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
 
-        {/* Empty State */}
-        {entries.length === 0 && !isWriting && (
-          <div className="text-center py-12" aria-label="No entries yet">
-            <BookHeart
-              className="h-16 w-16 text-muted-foreground mx-auto mb-4 opacity-50"
-              aria-hidden="true"
-            />
-            <p className="text-muted-foreground text-lg mb-2">No entries yet</p>
-            <p className="text-muted-foreground text-sm">
-              Start writing to capture your thoughts
-            </p>
+        {/* Entries Section - styled like MealTracker */}
+        <div className="space-y-6 flex-1">
+          <div>
+            <h3 className="text-lg font-semibold text-foreground mb-3 flex items-center gap-2">
+              <BookHeart className="h-5 w-5 text-primary" aria-hidden="true" />
+              Entries
+            </h3>
+            {entries.length > 0 ? (
+              <div className="space-y-2">
+                {entries.map((entry) => (
+                  <Card
+                    key={entry.id}
+                    className={`${theme.cardBase} ${theme.cardSoft}`}
+                  >
+                    <CardContent className={theme.cardContentBase}>
+                      <div className="flex justify-between items-center mb-2">
+                        <div className="flex items-center gap-2">
+                          <span className="text-sm font-medium text-primary">
+                            {new Date(entry.time).toLocaleDateString()}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            {new Date(entry.time).toLocaleTimeString([], {
+                              hour: "2-digit",
+                              minute: "2-digit",
+                            })}
+                          </span>
+                        </div>
+                        <div className="flex items-center gap-2">
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleDeleteEntry(entry.id)}
+                            aria-label={`Delete entry`}
+                          >
+                            <TrashIcon
+                              className="h-4 w-4 text-muted-foreground hover:text-destructive"
+                              aria-hidden="true"
+                            />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleEditEntry(entry)}
+                            aria-label={`Edit entry`}
+                          >
+                            <PencilIcon
+                              className="h-4 w-4 text-muted-foreground hover:text-primary"
+                              aria-hidden="true"
+                            />
+                          </Button>
+                        </div>
+                      </div>
+                      <p className="text-foreground leading-relaxed">{entry.text}</p>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            ) : (
+              <Card className={theme.cardMuted}>
+                <CardContent className={theme.cardContentBase + " text-center"}>
+                  <BookHeart className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" aria-hidden="true" />
+                  <p className="text-muted-foreground text-sm">
+                    No entries yet. Start writing to capture your thoughts.
+                  </p>
+                </CardContent>
+              </Card>
+            )}
           </div>
-        )}
+        </div>
       </div>
     </div>
   );
