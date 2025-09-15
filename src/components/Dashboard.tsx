@@ -5,9 +5,8 @@ import {
   Droplets,
   Utensils,
   Dumbbell,
-  Calendar,
+  RotateCw,
   BookHeart,
-  Plus,
 } from "lucide-react";
 import { fetchWaterFromDb } from "@/api/waterAPI";
 import { fetchMealsFromDb } from "@/api/mealAPI";
@@ -15,7 +14,9 @@ import { fetchWorkoutsFromDb } from "@/api/workoutAPI";
 import { fetchEntriesFromDb } from "@/api/journalAPI";
 import { fetchPeriodsFromDb, calculateCurrentDay } from "@/api/periodAPI";
 import { useEffect, useState } from "react";
-
+import { Calendar } from "./ui/calendar";
+import { DayData } from "@/types/app";
+import CalendarDisplay  from "./ui/CalendarDisplay";
 
 interface QuickStats {
   waterGlasses: number;
@@ -34,58 +35,73 @@ const Dashboard = ({ setActiveTab }) => {
   const [workoutMinutes, setWorkoutMinutes] = useState(0);
   const [journalEntries, setJournalEntries] = useState(0);
   const [cycleDay, setCycleDay] = useState<number | undefined>();
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>(
+    new Date()
+  );
+  const [dayData, setDayData] = useState<DayData>({
+    journal: [],
+    meals: [],
+    water: [],
+    workouts: [],
+    periods: [],
+  });
 
   useEffect(() => {
-  const fetchStats = async () => {
-    // Water
-    const waterData = await fetchWaterFromDb();
+    const fetchStats = async () => {
+      // Water
+      const waterData = await fetchWaterFromDb();
       if (waterData && waterData.length > 0) {
-        const mostRecentEntry = waterData[0]; // Get most recent entry
+        const mostRecentEntry = waterData[0];
         setWaterGlasses(mostRecentEntry?.count || 0);
       }
 
-    // Meals
-    const mealsData = await fetchMealsFromDb();
-    if (mealsData) {
-      const todayMeals = mealsData.filter(
-        (m) => new Date(m.time).toDateString() === new Date().toDateString()
-      );
-      setMealsLogged(todayMeals.length);
-    }
+      // Meals
+      const mealsData = await fetchMealsFromDb();
+      if (mealsData) {
+        const todayMeals = mealsData.filter(
+          (m) => new Date(m.time).toDateString() === new Date().toDateString()
+        );
+        setMealsLogged(todayMeals.length);
+      }
 
-    // Workouts
-    const workoutsData = await fetchWorkoutsFromDb();
-    if (workoutsData) {
-      const todaysWorkouts = workoutsData.filter(
-        (w) => new Date(w.time).toDateString() === new Date().toDateString()
-      );
-      const totalMinutes = todaysWorkouts.reduce((sum, w) => sum + w.duration, 0);
-      setWorkoutMinutes(totalMinutes);
-    }
+      // Workouts
+      const workoutsData = await fetchWorkoutsFromDb();
+      if (workoutsData) {
+        const todaysWorkouts = workoutsData.filter(
+          (w) => new Date(w.time).toDateString() === new Date().toDateString()
+        );
+        const totalMinutes = todaysWorkouts.reduce(
+          (sum, w) => sum + w.duration,
+          0
+        );
+        setWorkoutMinutes(totalMinutes);
+      }
 
-    // Journal
-    const journalData = await fetchEntriesFromDb();
-    if (journalData) {
-      const todayEntries = journalData.filter(
-        (e) => new Date(e.time).toDateString() === new Date().toDateString()
-      );
-      setJournalEntries(todayEntries.length);
-    }
+      // Journal
+      const journalData = await fetchEntriesFromDb();
+      if (journalData) {
+        const todayEntries = journalData.filter(
+          (e) => new Date(e.time).toDateString() === new Date().toDateString()
+        );
+        setJournalEntries(todayEntries.length);
+      }
 
-    // Periods
-    const periodsData = await fetchPeriodsFromDb();
-    if (periodsData && periodsData.length > 0) {
-      const mostRecentPeriod = periodsData[0]; // Assuming sorted by most recent
-      const day = calculateCurrentDay(mostRecentPeriod.cycle_start_date, mostRecentPeriod.cycle_length);
-      setCycleDay(day);
-    } else {
-      setCycleDay(undefined);
-    }
-  };
+      // Periods
+      const periodsData = await fetchPeriodsFromDb();
+      if (periodsData && periodsData.length > 0) {
+        const mostRecentPeriod = periodsData[0];
+        const day = calculateCurrentDay(
+          mostRecentPeriod.cycle_start_date,
+          mostRecentPeriod.cycle_length
+        );
+        setCycleDay(day);
+      } else {
+        setCycleDay(undefined);
+      }
 
-  fetchStats();
-}, []);
-
+    };
+    fetchStats();
+  }, [selectedDate]);
 
   const stats: QuickStats = {
     waterGlasses,
@@ -126,25 +142,15 @@ const Dashboard = ({ setActiveTab }) => {
       bgGradient: "bg-gradient-primary",
     },
     {
-      id: "journal",
-      title: "Journal",
-      icon: BookHeart,
-      value: stats.journalEntries.toString(),
-      subtitle: "entries today",
-      color: "text-accent-foreground",
-      bgGradient: "bg-gradient-soft",
-    },
-    {
       id: "cycle",
       title: "Menstrual Cycle",
-      icon: Calendar,
+      icon: RotateCw,
       value: stats.cycleDay ? `Day ${stats.cycleDay}` : "N/A",
       subtitle: "of cycle",
       color: "text-secondary-foreground",
       bgGradient: "bg-gradient-accent",
     },
   ];
-
 
   const handleJournalClick = () => {
     setActiveTab("journal");
@@ -156,37 +162,35 @@ const Dashboard = ({ setActiveTab }) => {
 
   return (
     <div className={theme.mainContainer}>
-      <div className={theme.innerContainer}>
+      <div className={theme.dashboardInnerContainer}>
         {/* Header */}
         <div className="text-center mb-8 pt-8">
-          <h1 className={theme.sectionHeader}>
-            Welcome!
-          </h1>
+          <h1 className={theme.sectionHeader}>Welcome!</h1>
           <p className={theme.sectionSubHeader}>
             Let's track your wellness journey
           </p>
-        {/* Quick Add Actions */}
-        <div className="grid grid-cols-2 gap-3 mb-8 mt-8">
-          <Button
-            className={`h-16 ${theme.buttonPrimary}`}
-            onClick={handleAddWater}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <Droplets className="h-5 w-5" />
-              <span className="text-sm">Add Water</span>
-            </div>
-          </Button>
-          <Button
-            variant="secondary"
-            className={`h-16 ${theme.buttonOutline}`}
-            onClick={handleJournalClick}
-          >
-            <div className="flex flex-col items-center gap-1">
-              <BookHeart className="h-5 w-5" />
-              <span className="text-sm">Journal</span>
-            </div>
-          </Button>
-        </div>
+          {/* Quick Add Actions */}
+          <div className="grid grid-cols-2 gap-3 mb-8 mt-8">
+            <Button
+              className={`h-16 ${theme.buttonPrimary}`}
+              onClick={handleAddWater}
+            >
+              <div className="flex flex-col items-center gap-1">
+                <Droplets className="h-5 w-5" />
+                <span className="text-sm">Add Water</span>
+              </div>
+            </Button>
+            <Button
+              variant="secondary"
+              className={`h-16 ${theme.buttonOutline}`}
+              onClick={handleJournalClick}
+            >
+              <div className="flex flex-col items-center gap-1">
+                <BookHeart className="h-5 w-5" />
+                <span className="text-sm">Journal</span>
+              </div>
+            </Button>
+          </div>
         </div>
 
         {/* Tracking Cards - Responsive Layout */}
@@ -222,6 +226,17 @@ const Dashboard = ({ setActiveTab }) => {
               </Card>
             );
           })}
+        </div>
+        {/* Calendar Section */}
+        <div>
+          <Calendar
+            selected={selectedDate}
+            onSelect={setSelectedDate}
+            mode="single"
+          />
+        </div>
+        <div className="flex">
+          <CalendarDisplay />
         </div>
       </div>
     </div>

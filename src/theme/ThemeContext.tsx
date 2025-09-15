@@ -19,8 +19,9 @@ const desktopTheme = {
   innerContainer: "max-w-6xl mx-auto w-full flex flex-row gap-8 justify-center",
   sectionHeader: "text-4xl font-extrabold text-foreground mb-6",
   cardContentBase: "p-6",
-  dashboardLayout: "grid grid-cols-3 gap-8 mx-auto", // modular grid for desktop
+  dashboardLayout: "grid grid-cols-2 gap-8 mx-auto", // modular grid for desktop
   dashboardCard: "bg-card shadow-glow rounded-xl p-6 flex flex-col min-h-[200px]", // desktop card style
+  dashboardInnerContainer: "max-w-6xl mx-auto w-full flex flex-row gap-8 justify-center"
 };
 
 export const ThemeContext = createContext(desktopTheme);
