@@ -13,7 +13,7 @@ import {
   Clock,
 } from "lucide-react";
 import { useTheme } from "@/theme/useTheme";
-import { addPeriodToDb, calculateCurrentDay } from "@/api/periodAPI";
+import { addPeriodToDb, calculateCurrentDay, fetchLatestPeriodEntry } from "@/api/periodAPI";
 import { useToast } from "@/hooks/use-toast";
 
 
@@ -83,7 +83,20 @@ const PeriodTracker = () => {
     }
   };
 
-  const handleAddPeriodData = () => {
+  const handleAddPeriodData = async () => {
+    const latestEntry = await fetchLatestPeriodEntry();
+
+    // Check if the formData values differ from the most recent entry
+    if (
+      latestEntry &&
+      latestEntry.cycle_start_date === formData.lastPeriodDate &&
+      latestEntry.cycle_length === formData.cycleLength &&
+      latestEntry.cycle_duration === formData.periodDuration
+    ) {
+      toast({ title: "No Changes", description: "Your cycle data is already up to date." });
+      return;
+    }
+
     const now = new Date();
     const period = {
       cycle_phase: getCurrentPhase(currentDay),
@@ -92,13 +105,33 @@ const PeriodTracker = () => {
       cycle_duration: formData.periodDuration,
       date: now.toISOString().split("T")[0],
     };
-    addPeriodToDb(period);
+    await addPeriodToDb(period);
     toast({ title: "Success!", description: "Your cycle data was saved." });
   }
 
   const updateFormData = (updates) => {
     setFormData((prev) => ({ ...prev, ...updates }));
   };
+
+  useEffect(() => {
+    const fetchLatestEntry = async () => {
+      const latestEntry = await fetchLatestPeriodEntry();
+      if (latestEntry) {
+        setFormData({
+          lastPeriodDate: latestEntry.cycle_start_date,
+          cycleLength: latestEntry.cycle_length,
+          periodDuration: latestEntry.cycle_duration,
+          notes: latestEntry.notes || "",
+          previousCycles: [],
+        });
+        const calculatedDay = calculateCurrentDay(latestEntry.cycle_start_date, latestEntry.cycle_length);
+        setCurrentDay(calculatedDay);
+        setShowCycleCard(true);
+      }
+    };
+
+    fetchLatestEntry();
+  }, []);
 
   const phase = getCurrentPhase(currentDay);
   const currentPhaseData = phases.find((p) => p.name.toLowerCase() === phase);

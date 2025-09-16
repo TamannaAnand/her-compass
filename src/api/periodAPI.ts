@@ -45,6 +45,27 @@ const fetchPeriodsFromDb = async () => {
   return data;
 };
 
+// Fetch the most recent period entry for the current user
+const fetchLatestPeriodEntry = async () => {
+  const uid = await getCurrentUserId();
+  if (!uid) return null;
+
+  const { data, error } = await supabase
+    .from("cycle_tracker")
+    .select("*")
+    .eq("user_id", uid)
+    .order("cycle_start_date", { ascending: false })
+    .limit(1)
+    .single();
+
+  if (error) {
+    console.error("Error fetching latest period entry:", error);
+    return null;
+  }
+
+  return data;
+};
+
 // Utility to calculate current day in cycle
 // Accepts lastPeriodDate (string) and cycleLength (number)
 const calculateCurrentDay = (lastPeriodDate: string, cycleLength: number): number => {
@@ -57,4 +78,4 @@ const calculateCurrentDay = (lastPeriodDate: string, cycleLength: number): numbe
   return dayInCycle;
 };
 
-export { addPeriodToDb, fetchPeriodsFromDb, calculateCurrentDay };
+export { addPeriodToDb, fetchPeriodsFromDb, fetchLatestPeriodEntry, calculateCurrentDay };

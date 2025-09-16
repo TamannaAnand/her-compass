@@ -8,10 +8,10 @@ import {
   RotateCw,
   BookHeart,
 } from "lucide-react";
-import { fetchWaterFromDb } from "@/api/waterAPI";
-import { fetchMealsFromDb } from "@/api/mealAPI";
-import { fetchWorkoutsFromDb } from "@/api/workoutAPI";
-import { fetchEntriesFromDb } from "@/api/journalAPI";
+import { fetchWaterByCurrentDate } from "@/api/waterAPI";
+import { fetchMealsByCurrentDate } from "@/api/mealAPI";
+import { fetchWorkoutsByCurrentDate } from "@/api/workoutAPI";
+import { fetchEntriesByCurrentDate } from "@/api/journalAPI";
 import { fetchPeriodsFromDb, calculateCurrentDay } from "@/api/periodAPI";
 import { useEffect, useState } from "react";
 import { Calendar } from "./ui/calendar";
@@ -49,14 +49,14 @@ const Dashboard = ({ setActiveTab }) => {
   useEffect(() => {
     const fetchStats = async () => {
       // Water
-      const waterData = await fetchWaterFromDb();
+      const waterData = await fetchWaterByCurrentDate();
       if (waterData && waterData.length > 0) {
         const mostRecentEntry = waterData[0];
         setWaterGlasses(mostRecentEntry?.count || 0);
       }
 
       // Meals
-      const mealsData = await fetchMealsFromDb();
+      const mealsData = await fetchMealsByCurrentDate();
       if (mealsData) {
         const todayMeals = mealsData.filter(
           (m) => new Date(m.time).toDateString() === new Date().toDateString()
@@ -65,7 +65,7 @@ const Dashboard = ({ setActiveTab }) => {
       }
 
       // Workouts
-      const workoutsData = await fetchWorkoutsFromDb();
+      const workoutsData = await fetchWorkoutsByCurrentDate();
       if (workoutsData) {
         const todaysWorkouts = workoutsData.filter(
           (w) => new Date(w.time).toDateString() === new Date().toDateString()
@@ -78,7 +78,7 @@ const Dashboard = ({ setActiveTab }) => {
       }
 
       // Journal
-      const journalData = await fetchEntriesFromDb();
+      const journalData = await fetchEntriesByCurrentDate();
       if (journalData) {
         const todayEntries = journalData.filter(
           (e) => new Date(e.time).toDateString() === new Date().toDateString()
