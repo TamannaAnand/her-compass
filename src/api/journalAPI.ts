@@ -112,4 +112,10 @@ const fetchEntriesByDate = async (date) => {
   return data;
 };
 
-export { addEntryToDb, deleteEntryFromDb, fetchEntriesFromDb, updateEntryInDb, fetchEntriesByDate };
+// fetjch journal entries for current date
+const fetchEntriesByCurrentDate = async () => {
+  const today = new Date().toISOString().split("T")[0];
+  return await fetchEntriesByDate(today);
+};
+
+export { addEntryToDb, deleteEntryFromDb, fetchEntriesFromDb, updateEntryInDb, fetchEntriesByDate, fetchEntriesByCurrentDate };

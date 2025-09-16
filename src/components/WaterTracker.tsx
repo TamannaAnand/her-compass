@@ -7,6 +7,7 @@ import {
   fetchWaterFromDb,
   addWaterToDb,
   updateWaterInDb,
+  fetchWaterByCurrentDate
 } from "@/api/waterAPI";
 import { useTheme } from "@/theme/useTheme";
 
@@ -21,7 +22,7 @@ const WaterTracker = () => {
   // Fetch most recent water entry on mount
   useEffect(() => {
     const loadWater = async () => {
-      const data = await fetchWaterFromDb();
+      const data = await fetchWaterByCurrentDate();
       const mostRecentEntry = data[0];
       if (mostRecentEntry) {
         setWaterCount(mostRecentEntry.count);

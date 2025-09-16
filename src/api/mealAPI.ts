@@ -113,4 +113,13 @@ const fetchMealsByDate = async (date) => {
   return data;
 };
 
-export { addMealToDb, deleteMealFromDb, fetchMealsFromDb, updateMealInDb, fetchMealsByDate };
+//fetch meal by current date
+const fetchMealsByCurrentDate = async () => {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+  const today = new Date();
+  const date = today.toISOString().split("T")[0];
+  return fetchMealsByDate(date);
+};
+
+export { addMealToDb, deleteMealFromDb, fetchMealsFromDb, updateMealInDb, fetchMealsByDate, fetchMealsByCurrentDate };

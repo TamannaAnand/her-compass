@@ -18,6 +18,7 @@ import {
   deleteMealFromDb,
   updateMealInDb,
   fetchMealsFromDb,
+  fetchMealsByCurrentDate,
 } from "@/api/mealAPI";
 import { useEffect } from "react";
 import { useToast } from "@/hooks/use-toast";
@@ -46,7 +47,7 @@ const MealTracker = () => {
   // Fetch meals from DB on mount
   useEffect(() => {
     const fetchMeals = async () => {
-      const data = await fetchMealsFromDb();
+      const data = await fetchMealsByCurrentDate();
       if (data) setMeals(data);
     };
     fetchMeals();
@@ -61,7 +62,7 @@ const MealTracker = () => {
         time: now.toISOString(),
       };
       await addMealToDb(meal);
-      const data = await fetchMealsFromDb();
+      const data = await fetchMealsByCurrentDate();
       if (data) setMeals(data);
       setNewMeal("");
       toast({ title: "Success!", description: "Your meal was added." });

@@ -90,4 +90,30 @@ const updateWorkoutInDb = async (workoutId, updatedWorkout) => {
   return data;
 };
 
-export { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb };
+// fetch workouts by date
+const fetchWorkoutsByDate = async (date) => {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+  const startOfDay = `${date}T00:00:00Z`;
+  const endOfDay = `${date}T23:59:59Z`;
+  const { data, error } = await supabase
+    .from("workout_tracker")
+    .select("*")
+    .eq("user_id", uid)
+    .gte("time", startOfDay)
+    .lt("time", endOfDay);
+  if (error) {
+    console.error("Error fetching workouts by date:", error);
+    return [];
+  }
+  return data;
+};
+
+//fetch workouts for current date
+const fetchWorkoutsByCurrentDate = async () => {
+  const today = new Date().toISOString().split("T")[0];
+  return await fetchWorkoutsByDate(today);
+};
+
+
+export { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb, fetchWorkoutsByCurrentDate };

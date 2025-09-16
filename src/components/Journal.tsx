@@ -11,6 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { BookHeart, Plus, Edit3, TrashIcon, PencilIcon } from "lucide-react";
 import { useTheme } from "@/theme/useTheme";
 import { useToast } from "@/hooks/use-toast";
+import { fetchEntriesByCurrentDate } from "@/api/journalAPI";
 
 
 interface JournalEntry {
@@ -28,7 +29,7 @@ const Journal = () => {
   // Fetch journal entries on mount
   useEffect(() => {
     const fetchEntries = async () => {
-      const data = await fetchEntriesFromDb();
+      const data = await fetchEntriesByCurrentDate();
       if (data) setEntries(data);
     };
     fetchEntries();
@@ -43,7 +44,7 @@ const Journal = () => {
         time: now.toISOString(),
       };
       await addEntryToDb(entry);
-      const data = await fetchEntriesFromDb();
+      const data = await fetchEntriesByCurrentDate();
       if (data) setEntries(data);
       setNewEntry("");
       setIsWriting(false);
@@ -54,7 +55,7 @@ const Journal = () => {
   // Delete entry
   const handleDeleteEntry = async (entryId: string) => {
     await deleteEntryFromDb(entryId);
-    const data = await fetchEntriesFromDb();
+    const data = await fetchEntriesByCurrentDate();
     if (data) setEntries(data);
     toast({ title: "Success!", description: "Your journal entry was deleted." });
   };

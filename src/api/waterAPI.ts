@@ -95,4 +95,13 @@ const fetchWaterByDate = async (date) => {
   return data;
 };
 
-export { addWaterToDb, fetchWaterFromDb, updateWaterInDb, fetchWaterByDate };
+// fetch water intake by current date
+const fetchWaterByCurrentDate = async () => {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+  const today = new Date();
+  const formattedDate = today.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+  return await fetchWaterByDate(formattedDate);
+}
+
+export { addWaterToDb, fetchWaterFromDb, updateWaterInDb, fetchWaterByDate, fetchWaterByCurrentDate };

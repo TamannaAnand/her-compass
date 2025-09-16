@@ -2,8 +2,8 @@ import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Dumbbell, Plus, Play, Pause, RotateCcw, Timer, TrashIcon, PencilIcon } from "lucide-react";
-import { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb } from "@/api/workoutAPI";
+import { Dumbbell, Plus, Play, Pause, RotateCcw, Timer, TrashIcon, PencilIcon, BookHeart } from "lucide-react";
+import { addWorkoutToDb, deleteWorkoutFromDb, fetchWorkoutsFromDb, updateWorkoutInDb, fetchWorkoutsByCurrentDate } from "@/api/workoutAPI";
 import { useTheme } from "@/theme/useTheme";
 import { useToast } from "@/hooks/use-toast";
 
@@ -52,7 +52,7 @@ const WorkoutTracker = () => {
 
   // -------------------- DB Logic --------------------
   const fetchWorkouts = async () => {
-    const data = await fetchWorkoutsFromDb();
+    const data = await fetchWorkoutsByCurrentDate();
     if (data) setWorkouts(data);
   };
 
@@ -96,7 +96,6 @@ const WorkoutTracker = () => {
   );
   const totalMinutes = todaysWorkouts.reduce((sum, w) => sum + w.duration, 0);
 
-  // ...existing code...
   const theme = useTheme();
   return (
     <div className={theme.mainContainer}>
@@ -109,8 +108,8 @@ const WorkoutTracker = () => {
         {/* Today's Summary */}
         <Card className={`mb-8 bg-gradient-primary border-0 shadow-glow`}>
           <CardContent className={theme.cardContentBase + " text-center"}>
-            <Dumbbell className="h-12 w-12 text-primary-foreground mx-auto opacity-80" aria-hidden="true" />
-            <p className="text-sm text-primary-foreground opacity-90">Today's Total</p>
+            <Dumbbell className="h-12 w-12 text-primary-foreground mx-auto opacity-80 pb-1" aria-hidden="true" />
+            <p className="text-sm text-primary-foreground opacity-90 pt-3">Today's Total</p>
             <p className="text-3xl font-bold text-primary-foreground">{totalMinutes}</p>
             <p className="text-sm text-primary-foreground opacity-75">minutes active</p>
           </CardContent>
@@ -187,35 +186,45 @@ const WorkoutTracker = () => {
         {/* Recent Workouts */}
         <div className="space-y-4 flex-1">
           <h3 className="text-lg font-semibold text-foreground">Recent Workouts</h3>
-          {workouts.map((workout) => (
-            <Card key={workout.id} className={`${theme.cardBase} ${theme.cardSoft}`}>
-              <CardContent className={theme.cardContentBase + " flex justify-between items-start"}>
-                <div>
-                  <h4 className="font-medium text-foreground">{workout.name}</h4>
-                  <p className="text-sm text-muted-foreground">{workout.type}</p>
-                </div>
-                <div className="text-right flex flex-col items-end gap-1">
-                  <p className="font-semibold text-primary">{workout.duration} min</p>
-                  <p className="text-xs text-muted-foreground">
-                    {new Date(workout.time).toLocaleDateString()}
+          {todaysWorkouts.length > 0 ? (
+            todaysWorkouts.map((workout) => (
+              <Card key={workout.id} className={`${theme.cardBase} ${theme.cardSoft}`}>
+                <CardContent className={theme.cardContentBase + " flex justify-between items-start"}>
+                  <div>
+                    <h4 className="font-medium text-foreground">{workout.name}</h4>
+                    <p className="text-sm text-muted-foreground">{workout.type}</p>
+                  </div>
+                  <div className="text-right flex flex-col items-end gap-1">
+                    <p className="font-semibold text-primary">{workout.duration} min</p>
+                    <p className="text-xs text-muted-foreground">
+                      {new Date(workout.time).toLocaleDateString()}
+                    </p>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteWorkout(workout.id)}
+                      aria-label={`Delete ${workout.name}`}
+                    >
+                      <TrashIcon className="h-4 w-4 text-muted-foreground hover:text-destructive" aria-hidden="true" />
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            ))
+          ) : (
+            <Card className={theme.cardMuted}>
+                <CardContent className={theme.cardContentBase + " text-center"}>
+                  <Dumbbell className="h-8 w-8 text-muted-foreground mx-auto mb-2 opacity-50" aria-hidden="true" />
+                  <p className="text-muted-foreground text-sm">
+                    No workouts yet. Start tracking today!
                   </p>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDeleteWorkout(workout.id)}
-                    aria-label={`Delete ${workout.name}`}
-                  >
-                    <TrashIcon className="h-4 w-4 text-muted-foreground hover:text-destructive" aria-hidden="true" />
-                  </Button>
-                </div>
-              </CardContent>
-            </Card>
-          ))}
+                </CardContent>
+              </Card>
+          )}
         </div>
-      </div>
-    </div>
-  );
-  // ...existing code...
+          </div>
+        </div>
+      )
 };
 
 export default WorkoutTracker;
