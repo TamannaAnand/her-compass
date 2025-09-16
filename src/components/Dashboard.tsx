@@ -229,11 +229,6 @@ const Dashboard = ({ setActiveTab }) => {
         </div>
         {/* Calendar Section */}
         <div>
-          <Calendar
-            selected={selectedDate}
-            onSelect={setSelectedDate}
-            mode="single"
-          />
           <CalendarDisplay />
         </div>
       </div>

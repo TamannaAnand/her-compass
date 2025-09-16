@@ -1,4 +1,3 @@
-
 import supabase from "@/api/supabaseClient";
 
 // 🔧 Utility to get current logged-in user's ID
@@ -91,4 +90,26 @@ const updateEntryInDb = async (entryId, updatedEntry) => {
   return data;
 };
 
-export { addEntryToDb, deleteEntryFromDb, fetchEntriesFromDb, updateEntryInDb };
+// Fetch journal entries for a specific date
+const fetchEntriesByDate = async (date) => {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+
+  const startOfDay = `${date}T00:00:00Z`;
+  const endOfDay = `${date}T23:59:59Z`;
+
+  const { data, error } = await supabase
+    .from("journal_entries")
+    .select("*")
+    .eq("user_id", uid)
+    .gte("time", startOfDay)
+    .lt("time", endOfDay);
+
+  if (error) {
+    console.error("Error fetching Journal Entries by date:", error);
+    return [];
+  }
+  return data;
+};
+
+export { addEntryToDb, deleteEntryFromDb, fetchEntriesFromDb, updateEntryInDb, fetchEntriesByDate };

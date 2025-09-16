@@ -73,4 +73,26 @@ const updateWaterInDb = async (waterId, updatedWater) => {
   return data;
 };
 
-export { addWaterToDb, fetchWaterFromDb, updateWaterInDb };
+// Fetch water intake for a specific date
+const fetchWaterByDate = async (date) => {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+
+  const startOfDay = `${date}T00:00:00Z`;
+  const endOfDay = `${date}T23:59:59Z`;
+
+  const { data, error } = await supabase
+    .from("water_intake")
+    .select("*")
+    .eq("user_id", uid)
+    .gte("date", startOfDay)
+    .lt("date", endOfDay);
+
+  if (error) {
+    console.error("Error fetching water intake by date:", error);
+    return [];
+  }
+  return data;
+};
+
+export { addWaterToDb, fetchWaterFromDb, updateWaterInDb, fetchWaterByDate };

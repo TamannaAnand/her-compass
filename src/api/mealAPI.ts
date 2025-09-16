@@ -91,4 +91,26 @@ const updateMealInDb = async (mealId, updatedMeal) => {
   return data;
 };
 
-export { addMealToDb, deleteMealFromDb, fetchMealsFromDb, updateMealInDb };
+// Fetch meals for a specific date
+const fetchMealsByDate = async (date) => {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+
+  const startOfDay = `${date}T00:00:00Z`;
+  const endOfDay = `${date}T23:59:59Z`;
+
+  const { data, error } = await supabase
+    .from("meal_tracker")
+    .select("*")
+    .eq("user_id", uid)
+    .gte("time", startOfDay)
+    .lt("time", endOfDay);
+
+  if (error) {
+    console.error("Error fetching meals by date:", error);
+    return [];
+  }
+  return data;
+};
+
+export { addMealToDb, deleteMealFromDb, fetchMealsFromDb, updateMealInDb, fetchMealsByDate };
