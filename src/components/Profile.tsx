@@ -1,18 +1,50 @@
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { useTheme } from "@/theme/useTheme";
-import { TrashIcon } from "lucide-react";
+import { getUserData } from "@/api/userAPI";
 
-import { Button } from "@/components/ui/button";
+import { useEffect, useState } from "react";
+import { set } from "date-fns";
 
 const Profile = () => {
   const theme = useTheme();
   // Placeholder user info
-  const user = {
-    name: "Jane Doe",
-    email: "jane.doe@email.com",
+  const [user, setUser] = (useState as any)({
+    name: "User",
+    email: "",
     avatarUrl:
-      "https://ui-avatars.com/api/?name=Jane+Doe&background=0D8ABC&color=fff",
-  };
+      "Add a valid avatar URL",
+  });
+
+  useEffect(() => {
+    const fetchUserData = async () => {
+      const userData = await getUserData();
+      console.log("Fetched User Data:", userData);
+      if (userData) {
+        setUser({
+          name: userData.user_metadata.full_name || "User",
+          email: userData.email || "",
+          avatarUrl:
+            userData.user_metadata.avatar_url ||
+            "Add a valid avatar URL",
+        });
+      } else {
+        setUser({
+          name: "User",
+          email: "",
+          avatarUrl:
+            "Add a valid avatar URL",
+        });
+      }
+
+    };
+
+    fetchUserData();
+  }, [setUser]);
+
+  const handleUpdateUserInfo = () => {
+    // Logic to update user info
+  }
+ 
 
   return (
     <div className={`${theme.mainContainer}`}>
@@ -32,11 +64,11 @@ const Profile = () => {
               <h2 className="text-2xl font-bold text-foreground mb-1">
                 {user.name}
               </h2>
-              <p className="text-muted-foreground">{user.email}</p>
+              <p className="text-muted-foreground"></p>
             </div>
           </CardContent>
         </Card>
-              {/* Recent Workouts */}
+
       <div className="space-y-4 flex-1">
         <h3 className="text-lg font-semibold text-foreground">
           Update info

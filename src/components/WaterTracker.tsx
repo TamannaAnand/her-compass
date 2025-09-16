@@ -45,16 +45,30 @@ const WaterTracker = () => {
   };
 
   const handleSave = async () => {
+    const today = new Date().toISOString().split("T")[0];
+
     if (waterEntryId) {
-      await updateWaterInDb(waterEntryId, { count: waterCount });
+      // Update the existing entry
+      await updateWaterInDb(today, { count: waterCount });
       toast({ title: "Success!", description: "Your water intake was updated." });
     } else {
-      const newEntry = await addWaterToDb({
-        date: new Date().toISOString(),
-        count: waterCount,
-      });
-      if (newEntry && newEntry[0]?.id) setWaterEntryId(newEntry[0].id);
-      toast({ title: "Success!", description: "Your water intake was saved." });
+      // Check if an entry exists for today
+      const existingEntries = await fetchWaterByCurrentDate();
+      if (existingEntries.length > 0) {
+        // Update the existing entry
+        const existingEntry = existingEntries[0];
+        await updateWaterInDb(today, { count: waterCount });
+        setWaterEntryId(existingEntry.id);
+        toast({ title: "Success!", description: "Your water intake was updated." });
+      } else {
+        // Add a new entry
+        const newEntry = await addWaterToDb({
+          date: today,
+          count: waterCount,
+        });
+        if (newEntry && newEntry[0]?.id) setWaterEntryId(newEntry[0].id);
+        toast({ title: "Success!", description: "Your water intake was saved." });
+      }
     }
   };
 

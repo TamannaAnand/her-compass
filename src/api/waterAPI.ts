@@ -55,14 +55,14 @@ const fetchWaterFromDb = async () => {
 };
 
 // update water count if entry exists for today for remove or add 
-const updateWaterInDb = async (waterId, updatedWater) => {
+const updateWaterInDb = async (date, updatedWater) => {
   const uid = await getCurrentUserId();
   if (!uid) return null;
 
   const { data, error } = await supabase
     .from("water_intake")
     .update(updatedWater)
-    .eq("id", waterId)
+    .eq("date", date)
     .eq("user_id", uid)
     .select(); // ✅ ADD THIS if you want to return updated data
 
@@ -73,7 +73,26 @@ const updateWaterInDb = async (waterId, updatedWater) => {
   return data;
 };
 
-// Fetch water intake for a specific date
+
+// fetch water intake by current date
+const fetchWaterByCurrentDate = async () => {
+  const uid = await getCurrentUserId();
+  if (!uid) return [];
+  const today = new Date();
+  const formattedDate = today.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
+    const { data, error } = await supabase
+    .from("water_intake")
+    .select("*")
+    .eq("user_id", uid)
+    .eq("date", formattedDate);
+  if (error) {
+    console.error("Error fetching water intake by current date:", error);
+    return [];
+  }
+  return data;
+};
+
+// fetch water intake by specific date
 const fetchWaterByDate = async (date) => {
   const uid = await getCurrentUserId();
   if (!uid) return [];
@@ -95,13 +114,5 @@ const fetchWaterByDate = async (date) => {
   return data;
 };
 
-// fetch water intake by current date
-const fetchWaterByCurrentDate = async () => {
-  const uid = await getCurrentUserId();
-  if (!uid) return [];
-  const today = new Date();
-  const formattedDate = today.toISOString().split("T")[0]; // Format date as YYYY-MM-DD
-  return await fetchWaterByDate(formattedDate);
-}
 
-export { addWaterToDb, fetchWaterFromDb, updateWaterInDb, fetchWaterByDate, fetchWaterByCurrentDate };
+export { addWaterToDb, fetchWaterFromDb, updateWaterInDb, fetchWaterByCurrentDate, fetchWaterByDate };

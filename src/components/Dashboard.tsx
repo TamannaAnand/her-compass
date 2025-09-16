@@ -48,11 +48,11 @@ const Dashboard = ({ setActiveTab }) => {
 
   useEffect(() => {
     const fetchStats = async () => {
-      // Water
-      const waterData = await fetchWaterByCurrentDate();
-      if (waterData && waterData.length > 0) {
-        const mostRecentEntry = waterData[0];
-        setWaterGlasses(mostRecentEntry?.count || 0);
+
+      const Waterdata = await fetchWaterByCurrentDate();
+      const mostRecentEntry = Waterdata[0];
+      if (mostRecentEntry) {
+        setWaterGlasses(mostRecentEntry.count);
       }
 
       // Meals
@@ -228,7 +228,7 @@ const Dashboard = ({ setActiveTab }) => {
           })}
         </div>
         {/* Calendar Section */}
-        <div>
+        <div className="flex flex-col mx-auto">
           <CalendarDisplay />
         </div>
       </div>

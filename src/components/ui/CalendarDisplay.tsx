@@ -15,7 +15,7 @@ const CalendarDisplay = () => {
   const [data, setData] = useState({
     meals: [],
     exercises: [],
-    water: [],
+    water: 0,
   });
 
   useEffect(() => {
@@ -25,14 +25,15 @@ const CalendarDisplay = () => {
         try {
           const meals = await fetchMealsByDate(formattedDate);
           const exercises = await fetchEntriesByDate(formattedDate);
-          const water = await fetchWaterByDate(formattedDate);
+          const waterData = await fetchWaterByDate(formattedDate);
+          console.log("Fetched data:", { meals, exercises, waterData }); // Log fetched data
 
-          console.log("Fetched data:", { meals, exercises, water }); // Log fetched data
+          console.log("Fetched data:", { meals, exercises, waterData }); // Log fetched data
 
           setData({
             meals: meals || [],
             exercises: exercises || [],
-            water: water || [],
+            water: waterData?.[0]?.count || 0, // Extract water count or default to 0
           });
         } catch (error) {
           console.error("Error fetching data:", error);
@@ -96,12 +97,8 @@ const CalendarDisplay = () => {
             Water Intake
           </AccordionTrigger>
           <AccordionContent className="p-4 text-sm text-gray-600">
-            {data.water.length > 0 ? (
-              <ul className="list-disc pl-5">
-                {data.water.map((entry, index) => (
-                  <li key={index}>{entry.amount} ml</li>
-                ))}
-              </ul>
+            {data.water > 0 ? (
+              <p>{data.water} ml</p>
             ) : (
               <p>No water intake recorded for this date.</p>
             )}
