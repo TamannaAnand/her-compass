@@ -1,73 +1,46 @@
-# Welcome to your Lovable project
+# Her Compass
 
-## Project info
+Her Compass is a health and wellness tracking application designed to help users manage their daily routines and long-term goals. The app features modules for tracking meals, workouts, water intake, journaling, and menstrual cycles, providing a comprehensive solution for personal health management.
 
-**URL**: https://lovable.dev/projects/c6c44d10-09fd-49bd-ab70-0ba5c33f4b2e
+## Features
 
-## How can I edit this code?
+- **Meal Tracker**: Log and monitor daily meals.
+- **Workout Tracker**: Record workouts and track fitness progress.
+- **Water Intake**: Stay hydrated by tracking daily water consumption.
+- **Journal**: Reflect on your day with journaling.
+- **Period Tracker**: Manage menstrual cycles and track phases.
 
-There are several ways of editing your application.
+## Technologies Used
 
-**Use Lovable**
+- **Frontend**: React, TypeScript
+- **Styling**: Tailwind CSS, shadcn-ui
+- **Backend**: Supabase (PostgreSQL, Authentication, API)
+- **Build Tool**: Vite
+- **State Management**: React Context API
+- **Icons**: Lucide React
 
-Simply visit the [Lovable Project](https://lovable.dev/projects/c6c44d10-09fd-49bd-ab70-0ba5c33f4b2e) and start prompting.
+## Getting Started
 
-Changes made via Lovable will be committed automatically to this repo.
-
-**Use your preferred IDE**
-
-If you want to work locally using your own IDE, you can clone this repo and push changes. Pushed changes will also be reflected in Lovable.
-
-The only requirement is having Node.js & npm installed - [install with nvm](https://github.com/nvm-sh/nvm#installing-and-updating)
-
-Follow these steps:
+Follow these steps to run the project locally:
 
 ```sh
-# Step 1: Clone the repository using the project's Git URL.
+# Step 1: Clone the repository
 git clone <YOUR_GIT_URL>
 
-# Step 2: Navigate to the project directory.
-cd <YOUR_PROJECT_NAME>
+# Step 2: Navigate to the project directory
+cd her-compass
 
-# Step 3: Install the necessary dependencies.
-npm i
+# Step 3: Install the dependencies
+npm install
 
-# Step 4: Start the development server with auto-reloading and an instant preview.
+# Step 4: Start the development server
 npm run dev
 ```
 
-**Edit a file directly in GitHub**
+## Deployment
 
-- Navigate to the desired file(s).
-- Click the "Edit" button (pencil icon) at the top right of the file view.
-- Make your changes and commit the changes.
+To deploy the project, you can use any hosting platform that supports Node.js applications, such as Vercel, Netlify, or AWS Amplify. Ensure that your environment variables for Supabase are correctly configured.
 
-**Use GitHub Codespaces**
+## License
 
-- Navigate to the main page of your repository.
-- Click on the "Code" button (green button) near the top right.
-- Select the "Codespaces" tab.
-- Click on "New codespace" to launch a new Codespace environment.
-- Edit files directly within the Codespace and commit and push your changes once you're done.
-
-## What technologies are used for this project?
-
-This project is built with:
-
-- Vite
-- TypeScript
-- React
-- shadcn-ui
-- Tailwind CSS
-
-## How can I deploy this project?
-
-Simply open [Lovable](https://lovable.dev/projects/c6c44d10-09fd-49bd-ab70-0ba5c33f4b2e) and click on Share -> Publish.
-
-## Can I connect a custom domain to my Lovable project?
-
-Yes, you can!
-
-To connect a domain, navigate to Project > Settings > Domains and click Connect Domain.
-
-Read more here: [Setting up a custom domain](https://docs.lovable.dev/tips-tricks/custom-domain#step-by-step-guide)
+This project is open-source and available under the [MIT License](LICENSE).
