@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 
 const menuItems = [
   { label: "Dashboard", tab: "dashboard" },
-  { label: "Period", tab: "period" },
+  { label: "Period Tracker", tab: "period" },
   { label: "Meals", tab: "meals" },
   { label: "Water", tab: "water" },
   { label: "Workout", tab: "workout" },

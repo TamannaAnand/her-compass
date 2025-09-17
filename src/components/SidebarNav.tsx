@@ -7,7 +7,7 @@ import { User, Home, Calendar, Utensils, Droplets, Dumbbell, BookHeart, LogOutIc
 
 const navItems = [
   { label: "Dashboard", tab: "dashboard", icon: Home },
-  { label: "Period", tab: "period", icon: Calendar },
+  { label: "Period Tracker", tab: "period", icon: Calendar },
   { label: "Meals", tab: "meals", icon: Utensils },
   { label: "Water", tab: "water", icon: Droplets },
   { label: "Workout", tab: "workout", icon: Dumbbell },
